@@ -1,0 +1,211 @@
+name: build-wpewebkit
+
+# Build libwpewebkit-1.0-dev on Ubuntu 24.04 (Noble) and publish to the
+# APT repository at wpe-webkit-linux.sharpblue.com.au.
+#
+# WPEWebKit 2.42.x is the last stable release series that ships the
+# wpewebkit-1.0 pkg-config ABI, which is what flutter_inappwebview_linux
+# 0.1.0-beta.1 requires.  Debian Sid moved to libwpewebkit-2.0-dev (a
+# different ABI) which requires glibc 2.42 — incompatible with Ubuntu 24.04.
+# Building here against Ubuntu 24.04 gives us glibc 2.39 compatible binaries.
+#
+# CRITICAL: cmake flags must include -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+# Ubuntu 24.04's GCC defaults to FORTIFY_SOURCE=3 which pulls in glibc 2.42
+# symbols.  Overriding to =2 keeps binaries compatible with glibc 2.39.
+
+on:
+  workflow_dispatch:
+    inputs:
+      wpewebkit_version:
+        description: 'WPEWebKit version (must be 2.4x.y — last series with wpewebkit-1.0 ABI)'
+        required: true
+        default: '2.42.5'
+      wpebackend_fdo_version:
+        description: 'WPEBackend-fdo version'
+        required: true
+        default: '1.14.2'
+  push:
+    tags:
+      - 'wpewebkit-*'
+
+env:
+  WPEWEBKIT_VERSION: ${{ github.event.inputs.wpewebkit_version || '2.42.5' }}
+  WPEBACKEND_FDO_VERSION: ${{ github.event.inputs.wpebackend_fdo_version || '1.14.2' }}
+  DISTRO: noble
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            cmake ninja-build pkg-config python3 ruby perl \
+            bison flex gperf unifdef gettext \
+            libglib2.0-dev libgcrypt20-dev \
+            libsoup-3.0-dev libxml2-dev libxslt1-dev \
+            libsqlite3-dev libwebp-dev libjpeg-dev libpng-dev \
+            libwoff2-dev libopus-dev libavif-dev \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-bad1.0-dev \
+            libwpe-1.0-dev libwpebackend-fdo-1.0-dev \
+            libepoxy-dev libgbm-dev \
+            libunwind-dev libseccomp-dev \
+            libenchant-2-dev libhyphen-dev liblcms2-dev \
+            libmanette-0.2-dev \
+            dpkg-dev debhelper fakeroot reprepro
+
+      # Cache the cmake build dir — WebKit takes ~60-90 min to compile.
+      # Cache key includes the version so a version bump triggers a fresh build.
+      - name: Cache build directory
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: wpewebkit-build-${{ env.WPEWEBKIT_VERSION }}-${{ runner.os }}
+
+      - name: Download WPEWebKit source
+        run: |
+          if [ ! -d wpewebkit-src ]; then
+            curl -L \
+              "https://wpewebkit.org/releases/wpewebkit-${WPEWEBKIT_VERSION}.tar.xz" \
+              -o wpewebkit.tar.xz
+            tar xf wpewebkit.tar.xz
+            mv "wpewebkit-${WPEWEBKIT_VERSION}" wpewebkit-src
+          fi
+
+      - name: Configure WPEWebKit
+        run: |
+          cmake -S wpewebkit-src -B build \
+            -GNinja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DPORT=WPE \
+            -DENABLE_INTROSPECTION=OFF \
+            -DENABLE_DOCUMENTATION=OFF \
+            -DENABLE_MINIBROWSER=OFF \
+            -DENABLE_API_TESTS=OFF \
+            -DENABLE_LAYOUT_TESTS=OFF \
+            -DUSE_SOUP2=OFF \
+            -DENABLE_GAMEPAD=OFF \
+            -DENABLE_SPEECH_SYNTHESIS=OFF \
+            -DENABLE_WEB_CRYPTO=OFF \
+            -DENABLE_BUBBLEWRAP_SANDBOX=OFF \
+            -DCMAKE_C_FLAGS="-O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" \
+            -DCMAKE_CXX_FLAGS="-O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
+
+      - name: Build WPEWebKit
+        run: ninja -C build -j$(nproc)
+        timeout-minutes: 120
+
+      - name: Install to staging directory
+        run: |
+          DESTDIR=${{ github.workspace }}/staging ninja -C build install
+
+      - name: Package libwpewebkit-1.0-3 (runtime)
+        run: |
+          PKG=libwpewebkit-1.0-3
+          VERSION="${WPEWEBKIT_VERSION}-1~${DISTRO}1"
+          DIR="pkg/${PKG}_${VERSION}_amd64"
+          mkdir -p "${DIR}/DEBIAN" "${DIR}/usr/lib/x86_64-linux-gnu"
+
+          # Copy shared libraries (not headers/pkgconfig)
+          cp -a staging/usr/lib/x86_64-linux-gnu/libWPEWebKit-1.0*.so* \
+            "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || true
+          # WebKit data files
+          if [ -d staging/usr/share/wpe ]; then
+            mkdir -p "${DIR}/usr/share"
+            cp -a staging/usr/share/wpe "${DIR}/usr/share/"
+          fi
+          if [ -d staging/usr/share/wpewebkit ]; then
+            mkdir -p "${DIR}/usr/share"
+            cp -a staging/usr/share/wpewebkit "${DIR}/usr/share/"
+          fi
+          # GStreamer plugin
+          if [ -d staging/usr/lib/x86_64-linux-gnu/gstreamer-1.0 ]; then
+            mkdir -p "${DIR}/usr/lib/x86_64-linux-gnu"
+            cp -a staging/usr/lib/x86_64-linux-gnu/gstreamer-1.0 \
+              "${DIR}/usr/lib/x86_64-linux-gnu/"
+          fi
+
+          cat > "${DIR}/DEBIAN/control" <<EOF
+          Package: ${PKG}
+          Version: ${VERSION}
+          Architecture: amd64
+          Maintainer: David Hobley <david@sharpblue.com.au>
+          Depends: libwpe-1.0-1, libwpebackend-fdo-1.0-1
+          Description: WPE WebKit web content engine for embedded devices (runtime)
+           WPEWebKit is the WebKit port for WPE (Web Platform for Embedded).
+           This package contains the runtime shared libraries.
+          EOF
+
+          dpkg-deb --build --root-owner-group "${DIR}" \
+            "pkg/${PKG}_${VERSION}_amd64.deb"
+
+      - name: Package libwpewebkit-1.0-dev (development)
+        run: |
+          PKG=libwpewebkit-1.0-dev
+          VERSION="${WPEWEBKIT_VERSION}-1~${DISTRO}1"
+          DIR="pkg/${PKG}_${VERSION}_amd64"
+          mkdir -p "${DIR}/DEBIAN" \
+                   "${DIR}/usr/lib/x86_64-linux-gnu" \
+                   "${DIR}/usr/include" \
+                   "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig"
+
+          # Headers
+          [ -d staging/usr/include/wpe-webkit-1.0 ] && \
+            cp -a staging/usr/include/wpe-webkit-1.0 "${DIR}/usr/include/"
+          [ -d staging/usr/include/wpe-webkit ] && \
+            cp -a staging/usr/include/wpe-webkit "${DIR}/usr/include/"
+
+          # .so symlink (unversioned, for linking)
+          find staging/usr/lib/x86_64-linux-gnu -maxdepth 1 \
+            -name "libWPEWebKit-1.0.so" | xargs -I{} cp -a {} \
+            "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || true
+
+          # pkg-config
+          find staging/usr/lib/x86_64-linux-gnu/pkgconfig \
+            -name "wpewebkit-1.0.pc" 2>/dev/null | \
+            xargs -I{} cp {} "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/"
+
+          cat > "${DIR}/DEBIAN/control" <<EOF
+          Package: ${PKG}
+          Version: ${VERSION}
+          Architecture: amd64
+          Maintainer: David Hobley <david@sharpblue.com.au>
+          Depends: libwpewebkit-1.0-3 (= ${VERSION})
+          Description: WPEWebKit web content engine for embedded devices (development)
+           Development headers and pkg-config file for libwpewebkit-1.0.
+          EOF
+
+          dpkg-deb --build --root-owner-group "${DIR}" \
+            "pkg/${PKG}_${VERSION}_amd64.deb"
+
+      - name: Upload packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wpewebkit-noble-amd64
+          path: pkg/*.deb
+
+      - name: Deploy to APT repository
+        if: github.event_name == 'push' || github.event.inputs.wpewebkit_version != ''
+        env:
+          REPO_SSH_KEY: ${{ secrets.REPO_SSH_KEY }}
+          REPO_HOST: wpe-webkit-linux.sharpblue.com.au
+          REPO_USER: ${{ secrets.REPO_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${REPO_SSH_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${REPO_HOST}" >> ~/.ssh/known_hosts
+
+          # Copy packages to server and include them in the repo
+          for deb in pkg/*.deb; do
+            scp -i ~/.ssh/deploy_key \
+              "${deb}" "${REPO_USER}@${REPO_HOST}:/tmp/"
+            ssh -i ~/.ssh/deploy_key \
+              "${REPO_USER}@${REPO_HOST}" \
+              "reprepro -b /srv/apt includedeb ${DISTRO} /tmp/$(basename ${deb}) && rm /tmp/$(basename ${deb})"
+          done
