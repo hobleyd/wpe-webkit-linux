@@ -9,8 +9,10 @@ name: build-wpewebkit
 # different ABI) which requires glibc 2.42 — incompatible with Ubuntu 24.04.
 # Building here against Ubuntu 24.04 gives us glibc 2.39 compatible binaries.
 #
-# libwpe and libwpebackend-fdo are also built from source: Ubuntu 24.04 dropped
-# all WPE packages from its repos, and libwoff2-dev requires the universe repo.
+# libwpe, libwpebackend-fdo, and libwoff2 are all built from source: Ubuntu 24.04
+# dropped all WPE packages, and libwoff2-dev is only in the universe component
+# which is unreliable to enable on GitHub Actions ubuntu-24.04 runners (DEB822
+# apt format). Building from source makes the APT repo fully self-contained.
 #
 # CRITICAL: cmake flags must include -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 # Ubuntu 24.04's GCC defaults to FORTIFY_SOURCE=3 which pulls in glibc 2.42
@@ -51,9 +53,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Enable universe and install build dependencies
+      - name: Install build dependencies
         run: |
-          sudo add-apt-repository universe -y
           sudo apt-get update -y
           sudo apt-get install -y \
             cmake ninja-build pkg-config python3 ruby perl \
@@ -61,7 +62,7 @@ jobs:
             libglib2.0-dev libgcrypt20-dev \
             libsoup-3.0-dev libxml2-dev libxslt1-dev \
             libsqlite3-dev libwebp-dev libjpeg-dev libpng-dev \
-            libwoff2-dev libopus-dev libavif-dev \
+            libbrotli-dev libopus-dev libavif-dev \
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
             libgstreamer-plugins-bad1.0-dev \
             libepoxy-dev libgbm-dev \
@@ -70,6 +71,68 @@ jobs:
             libenchant-2-dev libhyphen-dev liblcms2-dev \
             libmanette-0.2-dev \
             dpkg-dev debhelper fakeroot
+
+      - name: Build woff2 from source
+        run: |
+          curl -L https://github.com/google/woff2/archive/refs/tags/v1.0.2.tar.gz \
+            -o woff2.tar.gz
+          tar xf woff2.tar.gz
+          cmake -S woff2-1.0.2 -B woff2-build \
+            -GNinja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DCMAKE_INSTALL_LIBDIR=lib/x86_64-linux-gnu \
+            -DCMAKE_C_FLAGS="-O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" \
+            -DCMAKE_CXX_FLAGS="-O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
+          ninja -C woff2-build
+          DESTDIR=${{ github.workspace }}/staging-woff2 ninja -C woff2-build install
+          sudo cp -rP staging-woff2/usr/* /usr/
+          sudo ldconfig
+
+      - name: Package woff2
+        run: |
+          WOFF2VER="1.0.2-1~${DISTRO}1"
+
+          # Runtime: libwoff2-1
+          PKG=libwoff2-1
+          DIR="pkg/${PKG}_${WOFF2VER}_amd64"
+          mkdir -p "${DIR}/DEBIAN" "${DIR}/usr/lib/x86_64-linux-gnu"
+          cp -a staging-woff2/usr/lib/x86_64-linux-gnu/libwoff2*.so.* \
+            "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || true
+          cat > "${DIR}/DEBIAN/control" <<EOF
+          Package: ${PKG}
+          Version: ${WOFF2VER}
+          Architecture: amd64
+          Maintainer: David Hobley <david@sharpblue.com.au>
+          Depends: libbrotli1
+          Description: WebFont compression library (runtime)
+           WOFF2 is a font compression format for the web.
+          EOF
+          dpkg-deb --build --root-owner-group "${DIR}" \
+            "pkg/${PKG}_${WOFF2VER}_amd64.deb"
+
+          # Development: libwoff2-dev
+          PKG=libwoff2-dev
+          DIR="pkg/${PKG}_${WOFF2VER}_amd64"
+          mkdir -p "${DIR}/DEBIAN" \
+                   "${DIR}/usr/lib/x86_64-linux-gnu" \
+                   "${DIR}/usr/include"
+          [ -d staging-woff2/usr/include/woff2 ] && \
+            cp -a staging-woff2/usr/include/woff2 "${DIR}/usr/include/"
+          find staging-woff2/usr/lib/x86_64-linux-gnu -maxdepth 1 \
+            -name "libwoff2*.so" | xargs -r -I{} cp -a {} \
+            "${DIR}/usr/lib/x86_64-linux-gnu/"
+          cat > "${DIR}/DEBIAN/control" <<EOF
+          Package: ${PKG}
+          Version: ${WOFF2VER}
+          Architecture: amd64
+          Maintainer: David Hobley <david@sharpblue.com.au>
+          Depends: libwoff2-1 (= ${WOFF2VER})
+          Description: WebFont compression library (development)
+           Development headers for libwoff2.
+          EOF
+          dpkg-deb --build --root-owner-group "${DIR}" \
+            "pkg/${PKG}_${WOFF2VER}_amd64.deb"
 
       - name: Build libwpe from source
         run: |
@@ -279,7 +342,7 @@ jobs:
           Version: ${VERSION}
           Architecture: amd64
           Maintainer: David Hobley <david@sharpblue.com.au>
-          Depends: libwpe-1.0-1, libwpebackend-fdo-1.0-1
+          Depends: libwpe-1.0-1, libwpebackend-fdo-1.0-1, libwoff2-1
           Description: WPE WebKit web content engine for embedded devices (runtime)
            WPEWebKit is the WebKit port for WPE (Web Platform for Embedded).
            This package contains the runtime shared libraries.
@@ -393,6 +456,7 @@ jobs:
           cd gh-pages
           # Remove previous versions to keep pool/ size bounded
           reprepro -b apt remove ${{ env.DISTRO }} \
+            libwoff2-1 libwoff2-dev \
             libwpe-1.0-1 libwpe-1.0-dev \
             libwpebackend-fdo-1.0-1 libwpebackend-fdo-1.0-dev \
             libwpewebkit-1.0-3 libwpewebkit-1.0-dev 2>/dev/null || true
