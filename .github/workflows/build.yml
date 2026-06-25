@@ -273,7 +273,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build
-          key: wpewebkit-build-${{ env.WPEWEBKIT_VERSION }}-${{ runner.os }}
+          key: wpewebkit-build-${{ env.WPEWEBKIT_VERSION }}-${{ runner.os }}-v2
 
       - name: Download WPEWebKit source
         run: |
@@ -289,9 +289,21 @@ jobs:
         run: |
           # SerializableErrorType has no write() overload; GCC 13 refuses the
           # implicit enum→uint8_t conversion that older compilers accepted.
-          sed -i \
-            's/write(errorNameToSerializableErrorType(errorTypeString));/write(static_cast<uint8_t>(errorNameToSerializableErrorType(errorTypeString)));/' \
-            wpewebkit-src/Source/WebCore/bindings/js/SerializedScriptValue.cpp
+          # Use Python to avoid shell-escaping issues with < > in static_cast.
+          python3 - <<'PYEOF'
+          import sys
+          path = 'wpewebkit-src/Source/WebCore/bindings/js/SerializedScriptValue.cpp'
+          old = 'write(errorNameToSerializableErrorType(errorTypeString));'
+          new = 'write(static_cast<uint8_t>(errorNameToSerializableErrorType(errorTypeString)));'
+          with open(path) as f:
+              content = f.read()
+          if old not in content:
+              print(f'ERROR: pattern not found in {path}', file=sys.stderr)
+              sys.exit(1)
+          with open(path, 'w') as f:
+              f.write(content.replace(old, new))
+          print('Patched SerializedScriptValue.cpp successfully')
+          PYEOF
 
       - name: Configure WPEWebKit
         run: |
