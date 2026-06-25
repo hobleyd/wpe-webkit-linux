@@ -1,7 +1,7 @@
 name: build-wpewebkit
 
-# Build libwpewebkit-1.0-dev on Ubuntu 24.04 (Noble) and publish to the
-# APT repository at wpe-webkit-linux.sharpblue.com.au.
+# Build libwpewebkit-1.0-dev on Ubuntu 24.04 (Noble) and publish to an APT
+# repository hosted on GitHub Pages at wpe-webkit-linux.sharpblue.com.au.
 #
 # WPEWebKit 2.42.x is the last stable release series that ships the
 # wpewebkit-1.0 pkg-config ABI, which is what flutter_inappwebview_linux
@@ -27,6 +27,10 @@ on:
   push:
     tags:
       - 'wpewebkit-*'
+
+permissions:
+  contents: write
+  pages: write
 
 env:
   WPEWEBKIT_VERSION: ${{ github.event.inputs.wpewebkit_version || '2.42.5' }}
@@ -56,7 +60,7 @@ jobs:
             libunwind-dev libseccomp-dev \
             libenchant-2-dev libhyphen-dev liblcms2-dev \
             libmanette-0.2-dev \
-            dpkg-dev debhelper fakeroot reprepro
+            dpkg-dev debhelper fakeroot
 
       # Cache the cmake build dir — WebKit takes ~60-90 min to compile.
       # Cache key includes the version so a version bump triggers a fresh build.
@@ -189,23 +193,77 @@ jobs:
           name: wpewebkit-noble-amd64
           path: pkg/*.deb
 
-      - name: Deploy to APT repository
-        if: github.event_name == 'push' || github.event.inputs.wpewebkit_version != ''
-        env:
-          REPO_SSH_KEY: ${{ secrets.REPO_SSH_KEY }}
-          REPO_HOST: wpe-webkit-linux.sharpblue.com.au
-          REPO_USER: ${{ secrets.REPO_USER }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "${REPO_SSH_KEY}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${REPO_HOST}" >> ~/.ssh/known_hosts
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'push' || github.event.inputs.wpewebkit_version != ''
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: wpewebkit-noble-amd64
+          path: pkg/
 
-          # Copy packages to server and include them in the repo
-          for deb in pkg/*.deb; do
-            scp -i ~/.ssh/deploy_key \
-              "${deb}" "${REPO_USER}@${REPO_HOST}:/tmp/"
-            ssh -i ~/.ssh/deploy_key \
-              "${REPO_USER}@${REPO_HOST}" \
-              "reprepro -b /srv/apt includedeb ${DISTRO} /tmp/$(basename ${deb}) && rm /tmp/$(basename ${deb})"
+      - name: Install reprepro
+        run: sudo apt-get install -y reprepro gnupg
+
+      - name: Import GPG signing key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+
+      - name: Prepare gh-pages workspace
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          if git ls-remote --heads "$REPO_URL" gh-pages | grep -q gh-pages; then
+            git clone --depth=1 --branch=gh-pages "$REPO_URL" gh-pages
+          else
+            mkdir gh-pages
+            cd gh-pages
+            git init
+            git remote add origin "$REPO_URL"
+            git checkout --orphan gh-pages
+          fi
+
+      - name: Configure APT repo
+        run: |
+          mkdir -p gh-pages/apt/conf
+
+          # Recreated each run so the key ID stays in sync with the signing key.
+          cat > gh-pages/apt/conf/distributions <<EOF
+          Origin: wpe-webkit-linux
+          Label: wpe-webkit-linux
+          Codename: ${{ env.DISTRO }}
+          Architectures: amd64
+          Components: main
+          Description: WPEWebKit 1.0 for Ubuntu 24.04 (Noble)
+          SignWith: ${{ secrets.GPG_KEY_ID }}
+          EOF
+
+          # Custom domain for GitHub Pages
+          echo "wpe-webkit-linux.sharpblue.com.au" > gh-pages/CNAME
+
+          # Export public key so consumers can download it
+          gpg --armor --export "${{ secrets.GPG_KEY_ID }}" \
+            > gh-pages/wpe-webkit-linux.gpg
+
+      - name: Publish packages
+        run: |
+          cd gh-pages
+          # Remove previous versions to keep pool/ size bounded
+          reprepro -b apt remove ${{ env.DISTRO }} \
+            libwpewebkit-1.0-3 libwpewebkit-1.0-dev 2>/dev/null || true
+          for deb in ../pkg/*.deb; do
+            reprepro -b apt includedeb ${{ env.DISTRO }} "$deb"
           done
+
+      - name: Push to gh-pages
+        run: |
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || \
+            git commit -m "chore: publish WPEWebKit ${{ env.WPEWEBKIT_VERSION }}"
+          git push origin gh-pages

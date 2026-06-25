@@ -3,8 +3,8 @@
 ## Purpose
 
 Builds WPEWebKit 2.42.x (last stable series with the `wpewebkit-1.0` pkg-config ABI)
-on Ubuntu 24.04 (Noble) and publishes `.deb` packages to an APT repository at
-`wpe-webkit-linux.sharpblue.com.au`.
+on Ubuntu 24.04 (Noble) and publishes `.deb` packages to an APT repository hosted on
+GitHub Pages at `wpe-webkit-linux.sharpblue.com.au`.
 
 This exists because:
 - `flutter_inappwebview_linux 0.1.0-beta.1` requires `wpewebkit-1.0` (via pkg-config)
@@ -29,22 +29,45 @@ Target: **2.42.x** (the latest 2.42.y patch release).
 
 ## APT repository
 
+Hosted on the `gh-pages` branch, served via GitHub Pages.
+
 URL: `http://wpe-webkit-linux.sharpblue.com.au/apt`
 Codename: `noble`
 Component: `main`
 GPG key: `http://wpe-webkit-linux.sharpblue.com.au/wpe-webkit-linux.gpg`
 
-## Server setup
-
-Run `server/setup.sh` once on the server. It installs nginx + reprepro and
-initialises the repo structure. Set `GPG_KEY_ID` to your signing key.
+The custom domain is configured via `CNAME` on the `gh-pages` branch and a CNAME
+DNS record pointing `wpe-webkit-linux.sharpblue.com.au` → `hobleyd.github.io`.
 
 ## GitHub Actions secrets required
 
 | Secret | Description |
 |--------|-------------|
-| `REPO_SSH_KEY` | Private SSH key for the deploy user on the repo server |
-| `REPO_USER` | SSH username on `wpe-webkit-linux.sharpblue.com.au` |
+| `GPG_PRIVATE_KEY` | ASCII-armored GPG private key (**no passphrase** — see below) |
+| `GPG_KEY_ID` | Long key ID or fingerprint (e.g. `ABCD1234...`) used for `SignWith:` |
+
+### Generating the signing key (one time)
+
+```bash
+# Generate a passphrase-less key (passphrase protection is provided by GitHub Secrets)
+gpg --batch --gen-key <<EOF
+Key-Type: RSA
+Key-Length: 4096
+Subkey-Type: RSA
+Subkey-Length: 4096
+Name-Real: WPE WebKit Linux PPA
+Name-Email: wpe-webkit-linux@sharpblue.com.au
+Expire-Date: 0
+%no-protection
+%commit
+EOF
+
+# Get the key ID
+gpg --list-secret-keys --keyid-format LONG wpe-webkit-linux@sharpblue.com.au
+
+# Export to add as the GPG_PRIVATE_KEY secret
+gpg --armor --export-secret-keys wpe-webkit-linux@sharpblue.com.au
+```
 
 ## Packages produced
 
