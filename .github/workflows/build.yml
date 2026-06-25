@@ -64,7 +64,7 @@ jobs:
             libcairo2-dev libfontconfig1-dev libfreetype-dev \
             libharfbuzz-dev libicu-dev libpango1.0-dev \
             libsqlite3-dev libwebp-dev libjpeg-dev libpng-dev libopenjp2-7-dev \
-            libbrotli-dev libopus-dev libavif-dev \
+            libbrotli-dev libopus-dev libavif-dev libjxl-dev \
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
             libgstreamer-plugins-bad1.0-dev \
             libepoxy-dev libgbm-dev \
