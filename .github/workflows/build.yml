@@ -57,7 +57,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y \
-            cmake ninja-build pkg-config python3 ruby perl \
+            cmake meson ninja-build pkg-config python3 ruby perl \
             bison flex gperf unifdef gettext \
             libglib2.0-dev libgcrypt20-dev \
             libsoup-3.0-dev libxml2-dev libxslt1-dev \
@@ -205,13 +205,13 @@ jobs:
             -o wpebackend-fdo.tar.gz
           mkdir wpebackend-fdo-src
           tar xf wpebackend-fdo.tar.gz --strip-components=1 -C wpebackend-fdo-src
-          cmake -S wpebackend-fdo-src -B wpebackend-fdo-build \
-            -GNinja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=/usr \
-            -DCMAKE_INSTALL_LIBDIR=lib/x86_64-linux-gnu \
-            -DCMAKE_C_FLAGS="-O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" \
-            -DCMAKE_CXX_FLAGS="-O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
+          # WPEBackend-fdo 1.14+ uses meson, not cmake
+          meson setup wpebackend-fdo-build wpebackend-fdo-src \
+            --prefix=/usr \
+            --libdir=lib/x86_64-linux-gnu \
+            -Dbuildtype=release \
+            -Dc_args="-O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2" \
+            -Dcpp_args="-O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
           ninja -C wpebackend-fdo-build
           DESTDIR=${{ github.workspace }}/staging-wpebackend-fdo \
             ninja -C wpebackend-fdo-build install
