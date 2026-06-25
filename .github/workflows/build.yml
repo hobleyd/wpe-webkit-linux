@@ -74,7 +74,7 @@ jobs:
 
       - name: Build woff2 from source
         run: |
-          curl -L https://github.com/google/woff2/archive/refs/tags/v1.0.2.tar.gz \
+          curl -fL https://github.com/google/woff2/archive/refs/tags/v1.0.2.tar.gz \
             -o woff2.tar.gz
           mkdir woff2-src
           tar xf woff2.tar.gz --strip-components=1 -C woff2-src
@@ -137,10 +137,10 @@ jobs:
 
       - name: Build libwpe from source
         run: |
-          curl -L "https://wpewebkit.org/releases/libwpe-${LIBWPE_VERSION}.tar.xz" \
-            -o libwpe.tar.xz
+          curl -fL "https://github.com/WebPlatformForEmbedded/libwpe/archive/refs/tags/${LIBWPE_VERSION}.tar.gz" \
+            -o libwpe.tar.gz
           mkdir libwpe-src
-          tar xf libwpe.tar.xz --strip-components=1 -C libwpe-src
+          tar xf libwpe.tar.gz --strip-components=1 -C libwpe-src
           cmake -S libwpe-src -B libwpe-build \
             -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
@@ -201,11 +201,10 @@ jobs:
 
       - name: Build WPEBackend-fdo from source
         run: |
-          curl -L \
-            "https://wpewebkit.org/releases/wpebackend-fdo-${WPEBACKEND_FDO_VERSION}.tar.xz" \
-            -o wpebackend-fdo.tar.xz
+          curl -fL "https://github.com/Igalia/WPEBackend-fdo/archive/refs/tags/${WPEBACKEND_FDO_VERSION}.tar.gz" \
+            -o wpebackend-fdo.tar.gz
           mkdir wpebackend-fdo-src
-          tar xf wpebackend-fdo.tar.xz --strip-components=1 -C wpebackend-fdo-src
+          tar xf wpebackend-fdo.tar.gz --strip-components=1 -C wpebackend-fdo-src
           cmake -S wpebackend-fdo-src -B wpebackend-fdo-build \
             -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
@@ -277,7 +276,7 @@ jobs:
       - name: Download WPEWebKit source
         run: |
           if [ ! -d wpewebkit-src ]; then
-            curl -L \
+            curl -fL \
               "https://wpewebkit.org/releases/wpewebkit-${WPEWEBKIT_VERSION}.tar.xz" \
               -o wpewebkit.tar.xz
             tar xf wpewebkit.tar.xz
