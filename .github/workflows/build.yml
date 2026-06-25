@@ -107,6 +107,7 @@ jobs:
           Version: ${WOFF2VER}
           Architecture: amd64
           Section: libs
+          Priority: optional
           Maintainer: David Hobley <david@sharpblue.com.au>
           Depends: libbrotli1
           Description: WebFont compression library (runtime)
@@ -131,6 +132,7 @@ jobs:
           Version: ${WOFF2VER}
           Architecture: amd64
           Section: libdevel
+          Priority: optional
           Maintainer: David Hobley <david@sharpblue.com.au>
           Depends: libwoff2-1 (= ${WOFF2VER})
           Description: WebFont compression library (development)
@@ -173,6 +175,7 @@ jobs:
           Version: ${LIBVER}
           Architecture: amd64
           Section: libs
+          Priority: optional
           Maintainer: David Hobley <david@sharpblue.com.au>
           Description: WPE platform library (runtime)
            libwpe is a general-purpose library for the WPE WebKit port.
@@ -197,6 +200,7 @@ jobs:
           Version: ${LIBVER}
           Architecture: amd64
           Section: libdevel
+          Priority: optional
           Maintainer: David Hobley <david@sharpblue.com.au>
           Depends: libwpe-1.0-1 (= ${LIBVER})
           Description: WPE platform library (development)
@@ -240,6 +244,7 @@ jobs:
           Version: ${FDOVER}
           Architecture: amd64
           Section: libs
+          Priority: optional
           Maintainer: David Hobley <david@sharpblue.com.au>
           Depends: libwpe-1.0-1
           Description: WPE FDO backend (runtime)
@@ -265,6 +270,7 @@ jobs:
           Version: ${FDOVER}
           Architecture: amd64
           Section: libdevel
+          Priority: optional
           Maintainer: David Hobley <david@sharpblue.com.au>
           Depends: libwpebackend-fdo-1.0-1 (= ${FDOVER})
           Description: WPE FDO backend (development)
@@ -372,6 +378,7 @@ jobs:
           Version: ${VERSION}
           Architecture: amd64
           Section: libs
+          Priority: optional
           Maintainer: David Hobley <david@sharpblue.com.au>
           Depends: libwpe-1.0-1, libwpebackend-fdo-1.0-1, libwoff2-1
           Description: WPE WebKit web content engine for embedded devices (runtime)
@@ -413,6 +420,7 @@ jobs:
           Version: ${VERSION}
           Architecture: amd64
           Section: libdevel
+          Priority: optional
           Maintainer: David Hobley <david@sharpblue.com.au>
           Depends: libwpewebkit-1.0-3 (= ${VERSION})
           Description: WPEWebKit web content engine for embedded devices (development)
