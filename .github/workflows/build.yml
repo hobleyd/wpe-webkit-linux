@@ -285,6 +285,14 @@ jobs:
             mv "wpewebkit-${WPEWEBKIT_VERSION}" wpewebkit-src
           fi
 
+      - name: Patch WPEWebKit source for GCC 13 compatibility
+        run: |
+          # SerializableErrorType has no write() overload; GCC 13 refuses the
+          # implicit enum→uint8_t conversion that older compilers accepted.
+          sed -i \
+            's/write(errorNameToSerializableErrorType(errorTypeString));/write(static_cast<uint8_t>(errorNameToSerializableErrorType(errorTypeString)));/' \
+            wpewebkit-src/Source/WebCore/bindings/js/SerializedScriptValue.cpp
+
       - name: Configure WPEWebKit
         run: |
           cmake -S wpewebkit-src -B build \
