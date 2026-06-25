@@ -76,8 +76,9 @@ jobs:
         run: |
           curl -L https://github.com/google/woff2/archive/refs/tags/v1.0.2.tar.gz \
             -o woff2.tar.gz
-          tar xf woff2.tar.gz
-          cmake -S woff2-1.0.2 -B woff2-build \
+          mkdir woff2-src
+          tar xf woff2.tar.gz --strip-components=1 -C woff2-src
+          cmake -S woff2-src -B woff2-build \
             -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=/usr \
@@ -138,8 +139,8 @@ jobs:
         run: |
           curl -L "https://wpewebkit.org/releases/libwpe-${LIBWPE_VERSION}.tar.xz" \
             -o libwpe.tar.xz
-          tar xf libwpe.tar.xz
-          mv "libwpe-${LIBWPE_VERSION}" libwpe-src
+          mkdir libwpe-src
+          tar xf libwpe.tar.xz --strip-components=1 -C libwpe-src
           cmake -S libwpe-src -B libwpe-build \
             -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
@@ -203,8 +204,8 @@ jobs:
           curl -L \
             "https://wpewebkit.org/releases/wpebackend-fdo-${WPEBACKEND_FDO_VERSION}.tar.xz" \
             -o wpebackend-fdo.tar.xz
-          tar xf wpebackend-fdo.tar.xz
-          mv "wpebackend-fdo-${WPEBACKEND_FDO_VERSION}" wpebackend-fdo-src
+          mkdir wpebackend-fdo-src
+          tar xf wpebackend-fdo.tar.xz --strip-components=1 -C wpebackend-fdo-src
           cmake -S wpebackend-fdo-src -B wpebackend-fdo-build \
             -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
