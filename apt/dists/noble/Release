@@ -1,0 +1,19 @@
+Origin: wpe-webkit-linux
+Label: wpe-webkit-linux
+Codename: noble
+Date: Thu, 25 Jun 2026 22:16:19 UTC
+Architectures: amd64
+Components: main
+Description: WPEWebKit 1.0 for Ubuntu 24.04 (Noble)
+MD5Sum:
+ b4d8204b76ad1389622dcacf54705e75 4537 main/binary-amd64/Packages
+ 966978efd5f9646463f13009a9341931 1474 main/binary-amd64/Packages.gz
+ 42b5ef0102fc04686c0c0bc19c70a1ae 137 main/binary-amd64/Release
+SHA1:
+ d8e4dba63e3063caaf6520c142d454adddcb4eee 4537 main/binary-amd64/Packages
+ 94a456e2c4d66811664560aea4ae3be34637dff6 1474 main/binary-amd64/Packages.gz
+ 53bcfb695bef6ad30cbed0406236837764bf4e8c 137 main/binary-amd64/Release
+SHA256:
+ f9bfa8d8570001132043db9a595fc5578c395333eefdb8d2db509b5f275785ec 4537 main/binary-amd64/Packages
+ 1c3c4b360595a337c66b46a57f0429057570ef05eb1583ec923dcbc0c734fc39 1474 main/binary-amd64/Packages.gz
+ b6bb5a967f363fcf30aeddf3e9b51afe45e1d6dde77fa70d4f77bd17592e3a06 137 main/binary-amd64/Release

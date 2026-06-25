@@ -1,0 +1,120 @@
+Package: libwoff2-1
+Version: 1.0.2-1~noble1
+Architecture: amd64
+Maintainer: David Hobley <david@sharpblue.com.au>
+Depends: libbrotli1
+Priority: optional
+Section: libs
+Filename: pool/main/libw/libwoff2-1/libwoff2-1_1.0.2-1~noble1_amd64.deb
+Size: 52670
+SHA256: e5e03dda22dcf5d14dc49b74308baa1fc959f64f3f25b069452a9fa0c04a04f2
+SHA1: fc2379b580b22dbddb4e26bf98ac35ccfdebe90c
+MD5sum: 70ac60acb057e0466ff0db3970c9e467
+Description: WebFont compression library (runtime)
+ WOFF2 is a font compression format for the web.
+
+Package: libwoff2-dev
+Version: 1.0.2-1~noble1
+Architecture: amd64
+Maintainer: David Hobley <david@sharpblue.com.au>
+Depends: libwoff2-1 (= 1.0.2-1~noble1)
+Priority: optional
+Section: libdevel
+Filename: pool/main/libw/libwoff2-dev/libwoff2-dev_1.0.2-1~noble1_amd64.deb
+Size: 2284
+SHA256: b0afb4fd8ee543dfeb42d9fa72cc7b1c335191f83290fca8f338a65185ac27a3
+SHA1: b3d65de58062e592d31d98cf96c9188dc0d83940
+MD5sum: 51ef56993ec9b1c6888b554249072047
+Description: WebFont compression library (development)
+ Development headers for libwoff2.
+
+Package: libwpe-1.0-1
+Version: 1.16.0-1~noble1
+Architecture: amd64
+Maintainer: David Hobley <david@sharpblue.com.au>
+Priority: optional
+Section: libs
+Filename: pool/main/libw/libwpe-1.0-1/libwpe-1.0-1_1.16.0-1~noble1_amd64.deb
+Size: 18746
+SHA256: d5233d376456599fb4e969e768702545b5b0627fce41492aca02b80d21bd4659
+SHA1: 732ff8b2ed71621ec832b44c79e03a234dcd1824
+MD5sum: bc3ffa25cf88fd4ccef3705a37500057
+Description: WPE platform library (runtime)
+ libwpe is a general-purpose library for the WPE WebKit port.
+
+Package: libwpe-1.0-dev
+Version: 1.16.0-1~noble1
+Architecture: amd64
+Maintainer: David Hobley <david@sharpblue.com.au>
+Depends: libwpe-1.0-1 (= 1.16.0-1~noble1)
+Priority: optional
+Section: libdevel
+Filename: pool/main/libw/libwpe-1.0-dev/libwpe-1.0-dev_1.16.0-1~noble1_amd64.deb
+Size: 37566
+SHA256: 19a2dd5c3be407ef3a8b7a3b703b4b2fab988c0ba3494265a823eaa9648b48e4
+SHA1: a0750232ddd0f4aa0058a77e058dc92460d7b80d
+MD5sum: 29338815c483f5722bda392c7d521059
+Description: WPE platform library (development)
+ Development headers and pkg-config for libwpe-1.0.
+
+Package: libwpebackend-fdo-1.0-1
+Version: 1.14.2-1~noble1
+Architecture: amd64
+Maintainer: David Hobley <david@sharpblue.com.au>
+Depends: libwpe-1.0-1
+Priority: optional
+Section: libs
+Filename: pool/main/libw/libwpebackend-fdo-1.0-1/libwpebackend-fdo-1.0-1_1.14.2-1~noble1_amd64.deb
+Size: 38024
+SHA256: b9e76a77ea40ce5e58f84bd6c092a1a1a33faefa34d9d077976ac0175ca15fde
+SHA1: 0d3e3b8be4cbb51799fd5de61d170f0cadc49272
+MD5sum: d42f78664b812c8ac28328f33950a074
+Description: WPE FDO backend (runtime)
+ FDO backend for the WPE WebKit web content engine.
+
+Package: libwpebackend-fdo-1.0-dev
+Version: 1.14.2-1~noble1
+Architecture: amd64
+Maintainer: David Hobley <david@sharpblue.com.au>
+Depends: libwpebackend-fdo-1.0-1 (= 1.14.2-1~noble1)
+Priority: optional
+Section: libdevel
+Filename: pool/main/libw/libwpebackend-fdo-1.0-dev/libwpebackend-fdo-1.0-dev_1.14.2-1~noble1_amd64.deb
+Size: 890
+SHA256: 11dea80d63746573917b5776150a79095aedff4bb9f8b8e23eee06037ab3fa60
+SHA1: 484724cab85db1f03d6c10ea0976fbd60e91056a
+MD5sum: 840db96de8207230bdbd197cc8d719f5
+Description: WPE FDO backend (development)
+ Development headers and pkg-config for libwpebackend-fdo-1.0.
+
+Package: libwpewebkit-1.0-3
+Version: 2.42.5-1~noble1
+Architecture: amd64
+Maintainer: David Hobley <david@sharpblue.com.au>
+Depends: libwpe-1.0-1, libwpebackend-fdo-1.0-1, libwoff2-1
+Priority: optional
+Section: libs
+Filename: pool/main/libw/libwpewebkit-1.0-3/libwpewebkit-1.0-3_2.42.5-1~noble1_amd64.deb
+Size: 704
+SHA256: 8fea3d7300096996c0870d894034ae0742183c9225ec668fb838218eb61b1c6a
+SHA1: 2b75d6db2d5de49f9437d83e7ccd0b1ed3ded8cf
+MD5sum: 22b173179b4bb89c4acbd0675ebb91a9
+Description: WPE WebKit web content engine for embedded devices (runtime)
+ WPEWebKit is the WebKit port for WPE (Web Platform for Embedded).
+ This package contains the runtime shared libraries.
+
+Package: libwpewebkit-1.0-dev
+Version: 2.42.5-1~noble1
+Architecture: amd64
+Maintainer: David Hobley <david@sharpblue.com.au>
+Depends: libwpewebkit-1.0-3 (= 2.42.5-1~noble1)
+Priority: optional
+Section: libdevel
+Filename: pool/main/libw/libwpewebkit-1.0-dev/libwpewebkit-1.0-dev_2.42.5-1~noble1_amd64.deb
+Size: 700
+SHA256: f1e53a8be3c366cf08f9924d6986bc96b1f664f349a861fac2445d8616cd34a6
+SHA1: a53f2c490e0f52cc1d783e8ff50b19281b345d46
+MD5sum: f5a06426737483020ef83355393a67a1
+Description: WPEWebKit web content engine for embedded devices (development)
+ Development headers and pkg-config file for libwpewebkit-1.0.
+

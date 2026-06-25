@@ -1,0 +1,5 @@
+Component: main
+Origin: wpe-webkit-linux
+Label: wpe-webkit-linux
+Architecture: amd64
+Description: WPEWebKit 1.0 for Ubuntu 24.04 (Noble)

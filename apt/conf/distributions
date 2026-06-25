@@ -1,0 +1,8 @@
+Origin: wpe-webkit-linux
+Label: wpe-webkit-linux
+Codename: noble
+Architectures: amd64
+Components: main
+Description: WPEWebKit 1.0 for Ubuntu 24.04 (Noble)
+SignWith: 1F8739FEC7698AD230C79590A4B3D7FDEC8C3DE0
+
