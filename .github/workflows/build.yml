@@ -61,7 +61,9 @@ jobs:
             bison flex gperf unifdef gettext \
             libglib2.0-dev libgcrypt20-dev \
             libsoup-3.0-dev libxml2-dev libxslt1-dev \
-            libsqlite3-dev libwebp-dev libjpeg-dev libpng-dev \
+            libcairo2-dev libfontconfig1-dev libfreetype-dev \
+            libharfbuzz-dev libicu-dev libpango1.0-dev \
+            libsqlite3-dev libwebp-dev libjpeg-dev libpng-dev libopenjp2-7-dev \
             libbrotli-dev libopus-dev libavif-dev \
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
             libgstreamer-plugins-bad1.0-dev \
