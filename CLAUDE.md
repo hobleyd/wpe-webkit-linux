@@ -4,7 +4,8 @@
 
 Builds WPEWebKit 2.42.x (last stable series with the `wpewebkit-1.0` pkg-config ABI)
 on Ubuntu 24.04 (Noble) and publishes `.deb` packages to an APT repository hosted on
-GitHub Pages at `wpe-webkit-linux.sharpblue.com.au`.
+GitHub Pages at `hobleyd.github.io/wpe-webkit-linux` (custom domain
+`wpe-webkit-linux.sharpblue.com.au` pending DNS fix — CNAME target needs trailing dot).
 
 This exists because:
 - `flutter_inappwebview_linux 0.1.0-beta.1` requires `wpewebkit-1.0` (via pkg-config)
@@ -31,10 +32,10 @@ Target: **2.42.x** (the latest 2.42.y patch release).
 
 Hosted on the `gh-pages` branch, served via GitHub Pages.
 
-URL: `https://wpe-webkit-linux.sharpblue.com.au/apt`
+URL: `https://hobleyd.github.io/wpe-webkit-linux/apt`
 Codename: `noble`
 Component: `main`
-GPG key: `https://wpe-webkit-linux.sharpblue.com.au/wpe-webkit-linux.gpg`
+GPG key: `https://hobleyd.github.io/wpe-webkit-linux/wpe-webkit-linux.gpg`
 
 The custom domain is configured via `CNAME` on the `gh-pages` branch and a CNAME
 DNS record pointing `wpe-webkit-linux.sharpblue.com.au` → `hobleyd.github.io`.
@@ -81,10 +82,10 @@ gpg --armor --export-secret-keys wpe-webkit-linux@sharpblue.com.au
 In `.github/workflows/release.yml`, before installing `libwpewebkit-1.0-dev`:
 
 ```bash
-curl -fsSL https://wpe-webkit-linux.sharpblue.com.au/wpe-webkit-linux.gpg \
+curl -fsSL https://hobleyd.github.io/wpe-webkit-linux/wpe-webkit-linux.gpg \
   | sudo gpg --dearmor -o /usr/share/keyrings/wpe-webkit-linux.gpg
 echo "deb [signed-by=/usr/share/keyrings/wpe-webkit-linux.gpg] \
-  https://wpe-webkit-linux.sharpblue.com.au/apt noble main" \
+  https://hobleyd.github.io/wpe-webkit-linux/apt noble main" \
   | sudo tee /etc/apt/sources.list.d/wpe-webkit-linux.list
 sudo apt-get update
 sudo apt-get install -y libwpewebkit-1.0-dev
