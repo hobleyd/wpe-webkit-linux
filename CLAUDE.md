@@ -31,10 +31,10 @@ Target: **2.42.x** (the latest 2.42.y patch release).
 
 Hosted on the `gh-pages` branch, served via GitHub Pages.
 
-URL: `http://wpe-webkit-linux.sharpblue.com.au/apt`
+URL: `https://wpe-webkit-linux.sharpblue.com.au/apt`
 Codename: `noble`
 Component: `main`
-GPG key: `http://wpe-webkit-linux.sharpblue.com.au/wpe-webkit-linux.gpg`
+GPG key: `https://wpe-webkit-linux.sharpblue.com.au/wpe-webkit-linux.gpg`
 
 The custom domain is configured via `CNAME` on the `gh-pages` branch and a CNAME
 DNS record pointing `wpe-webkit-linux.sharpblue.com.au` → `hobleyd.github.io`.
@@ -81,10 +81,10 @@ gpg --armor --export-secret-keys wpe-webkit-linux@sharpblue.com.au
 In `.github/workflows/release.yml`, before installing `libwpewebkit-1.0-dev`:
 
 ```bash
-curl -fsSL http://wpe-webkit-linux.sharpblue.com.au/wpe-webkit-linux.gpg \
+curl -fsSL https://wpe-webkit-linux.sharpblue.com.au/wpe-webkit-linux.gpg \
   | sudo gpg --dearmor -o /usr/share/keyrings/wpe-webkit-linux.gpg
 echo "deb [signed-by=/usr/share/keyrings/wpe-webkit-linux.gpg] \
-  http://wpe-webkit-linux.sharpblue.com.au/apt noble main" \
+  https://wpe-webkit-linux.sharpblue.com.au/apt noble main" \
   | sudo tee /etc/apt/sources.list.d/wpe-webkit-linux.list
 sudo apt-get update
 sudo apt-get install -y libwpewebkit-1.0-dev
