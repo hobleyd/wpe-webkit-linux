@@ -484,8 +484,10 @@ jobs:
           SignWith: ${{ secrets.GPG_KEY_ID }}
           EOF
 
-          # Custom domain for GitHub Pages
-          echo "wpe-webkit-linux.sharpblue.com.au" > gh-pages/CNAME
+          # Remove custom domain — DNS CNAME target is misconfigured (missing
+          # trailing dot), so github.io redirect breaks all consumers. Re-add
+          # once DNS is fixed: set CNAME value to hobleyd.github.io. (with dot).
+          rm -f gh-pages/CNAME
 
           # Export public key so consumers can download it
           gpg --armor --export "${{ secrets.GPG_KEY_ID }}" \
