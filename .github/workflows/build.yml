@@ -473,6 +473,10 @@ jobs:
         run: |
           mkdir -p gh-pages/apt/conf
 
+          # Strip newlines — copy-pasting a key ID from a terminal commonly
+          # adds a trailing newline to the secret, which breaks gpg lookup.
+          GPG_KEY_ID=$(printf '%s' "${{ secrets.GPG_KEY_ID }}" | tr -d '\n\r')
+
           # Recreated each run so the key ID stays in sync with the signing key.
           cat > gh-pages/apt/conf/distributions <<EOF
           Origin: wpe-webkit-linux
@@ -481,7 +485,7 @@ jobs:
           Architectures: amd64
           Components: main
           Description: WPEWebKit 1.0 for Ubuntu 24.04 (Noble)
-          SignWith: ${{ secrets.GPG_KEY_ID }}
+          SignWith: ${GPG_KEY_ID}
           EOF
 
           # Remove custom domain — DNS CNAME target is misconfigured (missing
@@ -490,17 +494,13 @@ jobs:
           rm -f gh-pages/CNAME
 
           # Export public key so consumers can download it.
-          # Try by key ID first, fall back to exporting all keys (there
-          # should only be one in the ephemeral CI keyring).
-          gpg --armor --export "${{ secrets.GPG_KEY_ID }}" \
-            > gh-pages/wpe-webkit-linux.gpg
+          gpg --armor --export "${GPG_KEY_ID}" > gh-pages/wpe-webkit-linux.gpg
           if [ ! -s gh-pages/wpe-webkit-linux.gpg ]; then
-            echo "Key ID lookup empty, exporting all keys in keyring"
+            echo "Key ID lookup produced nothing, exporting all keys in keyring"
             gpg --armor --export > gh-pages/wpe-webkit-linux.gpg
           fi
           if [ ! -s gh-pages/wpe-webkit-linux.gpg ]; then
-            echo "ERROR: GPG export produced an empty file." \
-                 "Check GPG_PRIVATE_KEY and GPG_KEY_ID secrets."
+            echo "ERROR: GPG export is empty. Check GPG_PRIVATE_KEY and GPG_KEY_ID secrets."
             exit 1
           fi
           echo "GPG key exported: $(wc -c < gh-pages/wpe-webkit-linux.gpg) bytes"
