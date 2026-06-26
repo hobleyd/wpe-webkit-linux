@@ -502,9 +502,10 @@ jobs:
           SignWith: ${GPG_KEY_ID}
           EOF
 
-          # Remove custom domain — DNS CNAME target is misconfigured (missing
-          # trailing dot), so github.io redirect breaks all consumers. Re-add
-          # once DNS is fixed: set CNAME value to hobleyd.github.io. (with dot).
+          # Ensure no CNAME file is ever committed to gh-pages. GitHub Pages
+          # auto-configures the custom domain from this file; having it present
+          # overrides the Settings → Pages custom domain field on every deploy,
+          # which would silently redirect github.io back to the custom domain.
           rm -f gh-pages/CNAME
 
           # Export public key so consumers can download it.
