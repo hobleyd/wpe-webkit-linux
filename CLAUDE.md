@@ -23,10 +23,13 @@ Overriding to `=2` keeps all symbols within glibc 2.39.
 
 ## WPEWebKit version
 
-Target: **2.42.x** (the latest 2.42.y patch release).
-- The `wpewebkit-1.0` pkg-config ABI is present in 2.36–2.42.
-- 2.44+ switches to `wpewebkit-2.0` (different ABI, different library SONAME).
-- Do not update past 2.42.x without checking `flutter_inappwebview_linux`.
+Target: **2.36.x** (the latest 2.36.y patch release, currently 2.36.9).
+- The `wpewebkit-1.0` pkg-config ABI (`libWPEWebKit-1.0.so`) is present in ≤ 2.36.
+- **2.38+ switched to `wpe-webkit-2.0`** (different pkg-config name, different SONAME:
+  `libWPEWebKit-2.0.so`). This was confirmed empirically: 2.42.5 installs
+  `wpe-webkit-2.0.pc`, not `wpewebkit-1.0.pc`.
+- Do not update past 2.36.x — `flutter_inappwebview_linux` cmake checks for
+  `wpewebkit-1.0` specifically and will fail if it only finds `wpe-webkit-2.0`.
 
 ## APT repository
 

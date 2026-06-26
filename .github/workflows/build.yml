@@ -1,12 +1,13 @@
 name: build-wpewebkit
 
 # Build libwpewebkit-1.0-dev on Ubuntu 24.04 (Noble) and publish to an APT
-# repository hosted on GitHub Pages at wpe-webkit-linux.sharpblue.com.au.
+# repository hosted on GitHub Pages at hobleyd.github.io/wpe-webkit-linux.
 #
-# WPEWebKit 2.42.x is the last stable release series that ships the
-# wpewebkit-1.0 pkg-config ABI, which is what flutter_inappwebview_linux
-# 0.1.0-beta.1 requires.  Debian Sid moved to libwpewebkit-2.0-dev (a
-# different ABI) which requires glibc 2.42 — incompatible with Ubuntu 24.04.
+# WPEWebKit 2.36.x is the last stable release series that ships the
+# wpewebkit-1.0 pkg-config ABI (libWPEWebKit-1.0.so), which is what
+# flutter_inappwebview_linux 0.1.0-beta.1 requires.  WPEWebKit 2.38+
+# switched to the wpe-webkit-2.0 ABI (libWPEWebKit-2.0.so, wpe-webkit-2.0.pc),
+# which is incompatible with flutter_inappwebview_linux's cmake checks.
 # Building here against Ubuntu 24.04 gives us glibc 2.39 compatible binaries.
 #
 # libwpe, libwpebackend-fdo, and libwoff2 are all built from source: Ubuntu 24.04
@@ -22,9 +23,9 @@ on:
   workflow_dispatch:
     inputs:
       wpewebkit_version:
-        description: 'WPEWebKit version (must be 2.4x.y — last series with wpewebkit-1.0 ABI)'
+        description: 'WPEWebKit version (must be 2.36.x — last series with wpewebkit-1.0 ABI; 2.38+ uses wpe-webkit-2.0)'
         required: true
-        default: '2.42.5'
+        default: '2.36.9'
       libwpe_version:
         description: 'libwpe version'
         required: true
@@ -42,7 +43,7 @@ permissions:
   pages: write
 
 env:
-  WPEWEBKIT_VERSION: ${{ github.event.inputs.wpewebkit_version || '2.42.5' }}
+  WPEWEBKIT_VERSION: ${{ github.event.inputs.wpewebkit_version || '2.36.9' }}
   LIBWPE_VERSION: ${{ github.event.inputs.libwpe_version || '1.16.0' }}
   WPEBACKEND_FDO_VERSION: ${{ github.event.inputs.wpebackend_fdo_version || '1.14.2' }}
   DISTRO: noble
@@ -285,7 +286,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build
-          key: wpewebkit-build-${{ env.WPEWEBKIT_VERSION }}-${{ runner.os }}-v3
+          key: wpewebkit-build-${{ env.WPEWEBKIT_VERSION }}-${{ runner.os }}-v4
 
       - name: Download WPEWebKit source
         run: |
@@ -310,11 +311,11 @@ jobs:
           with open(path) as f:
               content = f.read()
           if old not in content:
-              print(f'ERROR: pattern not found in {path}', file=sys.stderr)
-              sys.exit(1)
-          with open(path, 'w') as f:
-              f.write(content.replace(old, new))
-          print('Patched SerializedScriptValue.cpp successfully')
+              print(f'WARNING: GCC 13 patch pattern not found in {path}, skipping')
+          else:
+              with open(path, 'w') as f:
+                  f.write(content.replace(old, new))
+              print('Patched SerializedScriptValue.cpp successfully')
           PYEOF
 
       - name: Configure WPEWebKit
@@ -348,23 +349,6 @@ jobs:
         run: |
           DESTDIR=${{ github.workspace }}/staging ninja -C build install
 
-      - name: Debug staging layout
-        run: |
-          echo "=== cmake install manifest (first 60 lines) ==="
-          head -60 build/install_manifest.txt 2>/dev/null || echo "(not found)"
-          echo ""
-          echo "=== staging tree ==="
-          find staging -maxdepth 5 | sort 2>/dev/null || echo "(staging empty or missing)"
-          echo ""
-          echo "=== .pc files in staging ==="
-          find staging -name "*.pc" 2>/dev/null | sort
-          echo ""
-          echo "=== WPEWebKit .so files in staging ==="
-          find staging -name "*WPEWebKit*.so*" 2>/dev/null | sort
-          echo ""
-          echo "=== include dirs in staging ==="
-          find staging -type d -name "wpe*" 2>/dev/null | sort
-
       - name: Package libwpewebkit-1.0-3 (runtime)
         run: |
           PKG=libwpewebkit-1.0-3
@@ -389,6 +373,15 @@ jobs:
             mkdir -p "${DIR}/usr/lib/x86_64-linux-gnu"
             cp -a staging/usr/lib/x86_64-linux-gnu/gstreamer-1.0 \
               "${DIR}/usr/lib/x86_64-linux-gnu/"
+          fi
+          # Injected bundle, inspector resources, etc. (wpe-webkit-1.0/ subdir)
+          for d in staging/usr/lib/x86_64-linux-gnu/wpe-webkit-*/; do
+            [ -d "$d" ] && cp -a "$d" "${DIR}/usr/lib/x86_64-linux-gnu/" || true
+          done
+          # Web/network process helpers
+          if [ -d staging/usr/libexec ]; then
+            mkdir -p "${DIR}/usr"
+            cp -a staging/usr/libexec "${DIR}/usr/"
           fi
 
           cat > "${DIR}/DEBIAN/control" <<EOF
