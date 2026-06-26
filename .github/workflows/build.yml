@@ -348,6 +348,23 @@ jobs:
         run: |
           DESTDIR=${{ github.workspace }}/staging ninja -C build install
 
+      - name: Debug staging layout
+        run: |
+          echo "=== cmake install manifest (first 60 lines) ==="
+          head -60 build/install_manifest.txt 2>/dev/null || echo "(not found)"
+          echo ""
+          echo "=== staging tree ==="
+          find staging -maxdepth 5 | sort 2>/dev/null || echo "(staging empty or missing)"
+          echo ""
+          echo "=== .pc files in staging ==="
+          find staging -name "*.pc" 2>/dev/null | sort
+          echo ""
+          echo "=== WPEWebKit .so files in staging ==="
+          find staging -name "*WPEWebKit*.so*" 2>/dev/null | sort
+          echo ""
+          echo "=== include dirs in staging ==="
+          find staging -type d -name "wpe*" 2>/dev/null | sort
+
       - name: Package libwpewebkit-1.0-3 (runtime)
         run: |
           PKG=libwpewebkit-1.0-3
