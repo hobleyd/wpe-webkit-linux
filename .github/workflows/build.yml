@@ -489,9 +489,21 @@ jobs:
           # once DNS is fixed: set CNAME value to hobleyd.github.io. (with dot).
           rm -f gh-pages/CNAME
 
-          # Export public key so consumers can download it
+          # Export public key so consumers can download it.
+          # Try by key ID first, fall back to exporting all keys (there
+          # should only be one in the ephemeral CI keyring).
           gpg --armor --export "${{ secrets.GPG_KEY_ID }}" \
             > gh-pages/wpe-webkit-linux.gpg
+          if [ ! -s gh-pages/wpe-webkit-linux.gpg ]; then
+            echo "Key ID lookup empty, exporting all keys in keyring"
+            gpg --armor --export > gh-pages/wpe-webkit-linux.gpg
+          fi
+          if [ ! -s gh-pages/wpe-webkit-linux.gpg ]; then
+            echo "ERROR: GPG export produced an empty file." \
+                 "Check GPG_PRIVATE_KEY and GPG_KEY_ID secrets."
+            exit 1
+          fi
+          echo "GPG key exported: $(wc -c < gh-pages/wpe-webkit-linux.gpg) bytes"
 
       - name: Publish packages
         run: |
