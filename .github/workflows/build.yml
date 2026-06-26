@@ -310,8 +310,12 @@ jobs:
             fi
           fi
 
-      - name: Patch WPEWebKit source for GCC 13 compatibility
+      - name: Patch WPEWebKit source for Ruby 3.2 and GCC 13 compatibility
         run: |
+          # Ruby 3.2 removed File.exists? (deprecated since 1.9.3); use File.exist?
+          find wpewebkit-src/Source/JavaScriptCore/offlineasm -name "*.rb" \
+            -exec sed -i 's/File\.exists?/File.exist?/g' {} +
+
           # SerializableErrorType has no write() overload; GCC 13 refuses the
           # implicit enum→uint8_t conversion that older compilers accepted.
           # Use Python to avoid shell-escaping issues with < > in static_cast.
