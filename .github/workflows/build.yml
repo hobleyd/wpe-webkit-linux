@@ -25,7 +25,7 @@ on:
       wpewebkit_version:
         description: 'WPEWebKit version (must be 2.36.x — last series with wpewebkit-1.0 ABI; 2.38+ uses wpe-webkit-2.0)'
         required: true
-        default: '2.36.9'
+        default: '2.36.8'
       libwpe_version:
         description: 'libwpe version'
         required: true
@@ -43,7 +43,7 @@ permissions:
   pages: write
 
 env:
-  WPEWEBKIT_VERSION: ${{ github.event.inputs.wpewebkit_version || '2.36.9' }}
+  WPEWEBKIT_VERSION: ${{ github.event.inputs.wpewebkit_version || '2.36.8' }}
   LIBWPE_VERSION: ${{ github.event.inputs.libwpe_version || '1.16.0' }}
   WPEBACKEND_FDO_VERSION: ${{ github.event.inputs.wpebackend_fdo_version || '1.14.2' }}
   DISTRO: noble
@@ -291,11 +291,23 @@ jobs:
       - name: Download WPEWebKit source
         run: |
           if [ ! -d wpewebkit-src ]; then
+            # wpewebkit.org only hosts recent releases; fall back to webkitgtk.org
+            # which mirrors the same source tree (cmake -DPORT=WPE builds WPE from either)
             curl -fL \
               "https://wpewebkit.org/releases/wpewebkit-${WPEWEBKIT_VERSION}.tar.xz" \
+              -o wpewebkit.tar.xz 2>/dev/null || \
+            curl -fL \
+              "https://webkitgtk.org/releases/webkitgtk-${WPEWEBKIT_VERSION}.tar.xz" \
               -o wpewebkit.tar.xz
             tar xf wpewebkit.tar.xz
-            mv "wpewebkit-${WPEWEBKIT_VERSION}" wpewebkit-src
+            # tarball extracts as either wpewebkit-VERSION or webkitgtk-VERSION
+            if [ -d "wpewebkit-${WPEWEBKIT_VERSION}" ]; then
+              mv "wpewebkit-${WPEWEBKIT_VERSION}" wpewebkit-src
+            elif [ -d "webkitgtk-${WPEWEBKIT_VERSION}" ]; then
+              mv "webkitgtk-${WPEWEBKIT_VERSION}" wpewebkit-src
+            else
+              echo "ERROR: could not find extracted source directory"; exit 1
+            fi
           fi
 
       - name: Patch WPEWebKit source for GCC 13 compatibility

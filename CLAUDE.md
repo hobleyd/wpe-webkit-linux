@@ -23,7 +23,7 @@ Overriding to `=2` keeps all symbols within glibc 2.39.
 
 ## WPEWebKit version
 
-Target: **2.36.x** (the latest 2.36.y patch release, currently 2.36.9).
+Target: **2.36.x** (the latest 2.36.y patch release, currently 2.36.8).
 - The `wpewebkit-1.0` pkg-config ABI (`libWPEWebKit-1.0.so`) is present in ≤ 2.36.
 - **2.38+ switched to `wpe-webkit-2.0`** (different pkg-config name, different SONAME:
   `libWPEWebKit-2.0.so`). This was confirmed empirically: 2.42.5 installs
