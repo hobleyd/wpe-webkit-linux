@@ -4,7 +4,7 @@ Hash: SHA512
 Origin: wpe-webkit-linux
 Label: wpe-webkit-linux
 Codename: noble
-Date: Thu, 25 Jun 2026 22:16:19 UTC
+Date: Fri, 26 Jun 2026 00:02:20 UTC
 Architectures: amd64
 Components: main
 Description: WPEWebKit 1.0 for Ubuntu 24.04 (Noble)
@@ -22,17 +22,17 @@ SHA256:
  b6bb5a967f363fcf30aeddf3e9b51afe45e1d6dde77fa70d4f77bd17592e3a06 137 main/binary-amd64/Release
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEg/WUCCWx/y1IcaTXfG6PntHp6gYFAmo9qLMACgkQfG6PntHp
-6gadbA//RzHs8bYMBepbMJOGVPUn4n9a5pojYpBcBlXWcKhq0qAHoQTgqn/tUKyZ
-k65whBZDSnH/vlaDeHmMxpu0hbaesZ+3g3jWpMl+Ar5iIzHBEOeIZeF2MTcR5hmD
-MNTCXkfh33Btn4TD7ZRJUXOboVXm1vl6U94QooQs7ZT1zymrje3xFANC/7E6Lfb2
-XHFtka1U6G7hf3wGT91a1TyXNK3bdHGDU0+HiceG75HnKgsak6AJzEO3rxdxRdQH
-Pdj7aZP0iGuslCr7Ssw8W4/J3YXBVLOQCa/23J7Ok9mBBchBinfTGRt7FlfBvwPc
-Bb2pdJ8ec2Rk4yrEV9kRqjkdRkLMk90YAghSLNmnj6QifJNE9liO42fe0he7myrM
-I+iwrxWKp+nFj7otKTDWRcbqgZ/OkGUDtzVOKMqLm77bf0lGB4rXEv2+8LWLPKxH
-fKv9DO+pcfNbrYTFZqrCJW07iTPFXX4L2Ov5Nw1ChWyGlE+IllF/W0qOBQnfEeE4
-yXSAYNtTtNwwgms4VisuzRzIuwTaKLsgkTDr9kqVrlchXIB/BIEgF1iBb+i9lbE1
-vFTIdS48AnwoK0RjxVTPkDOFtPf5GjbZx9aMOVNy9YaYSu0SmIwCzJjZzdYqYQMk
-jGUSiSAmhj6qRjKNZWFlLNkvvD/4Rhl9A2K4oX2U+AkfqQaBI+Q=
-=+a2i
+iQIzBAEBCgAdFiEEg/WUCCWx/y1IcaTXfG6PntHp6gYFAmo9wYwACgkQfG6PntHp
+6gbKGQ/7BdNV7izGjA9rlln3jXi/Aouhis5gpeAZ2ZZjqxGQ2Ib/wWaaOq5ObND1
+m7+nf0dx0JIh85kAmfCfei86VUvmz1oegGFDHggcMcnQDsnhBGuCLK9CgyEUVVhZ
+3ldGpfPm4of6QeSxOtSEv9tseM0CRQzKFrR7IpPR1xMTmliSBKxriM0/HiNyUcnC
+4zkt20c8B9y/YmpJbBNI4Aas5KJH3FRPvc/GRt6rVs6aFZh3AsW5YfvFSuc13par
+xGEMBlbOayd1HUmpThGyf00vLufdwAcU5AkkLEOoFPy107iIdilFpsjtA0s/xD2+
+23+oG1C/bJ1dujxg7VNYNy46ILYLBbce+2tE1UDU/csdtARduS4HVHeGvTGBMsmv
+NfXMTcVEJDqGt9GmbCJLG4aK2xqq+paOVNXbyrAFsdbF6F3gq2gS5ubxJXbtqk0x
+4h9h1D1Fw1mYSCZZjOjy4olfirRJzc+x9mIVgqaiQaySRERpyzUpgaPx+QWckZE6
+/h+wPc0Lo/uYO0DL3unrTPYk/nmf88obIzesZ9qjwyD7QLn771+Dx1ZZ7fuo3J/h
+GwV0NesXmfwQogaTjc/HNdlUT0QEetLlqganU5AZm6EiMf1btsId42LqogGwubBc
+q5tjCfdMWg6W1pVJc58QH38m9DhAItFBNkDzfuULd6hrf33BqLU=
+=P9qi
 -----END PGP SIGNATURE-----
