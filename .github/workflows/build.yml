@@ -285,7 +285,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build
-          key: wpewebkit-build-${{ env.WPEWEBKIT_VERSION }}-${{ runner.os }}-v2
+          key: wpewebkit-build-${{ env.WPEWEBKIT_VERSION }}-${{ runner.os }}-v3
 
       - name: Download WPEWebKit source
         run: |
@@ -323,6 +323,7 @@ jobs:
             -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=/usr \
+            -DCMAKE_INSTALL_LIBDIR=lib/x86_64-linux-gnu \
             -DPORT=WPE \
             -DENABLE_INTROSPECTION=OFF \
             -DENABLE_DOCUMENTATION=OFF \
@@ -410,9 +411,8 @@ jobs:
             -name "libWPEWebKit-1.0.so" | xargs -r -I{} cp -a {} \
             "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || true
 
-          # pkg-config
-          find staging/usr/lib/x86_64-linux-gnu/pkgconfig \
-            -name "wpewebkit-1.0.pc" 2>/dev/null | \
+          # pkg-config — search entire staging/usr/lib in case LIBDIR varied
+          find staging/usr/lib -name "wpewebkit-1.0.pc" 2>/dev/null | head -1 | \
             xargs -r -I{} cp {} "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/"
 
           cat > "${DIR}/DEBIAN/control" <<EOF
@@ -429,6 +429,20 @@ jobs:
 
           dpkg-deb --build --root-owner-group "${DIR}" \
             "pkg/${PKG}_${VERSION}_amd64.deb"
+
+      - name: Verify package contents
+        run: |
+          echo "=== libwpewebkit-1.0-dev contents ==="
+          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb
+          echo ""
+          echo "=== checking for wpewebkit-1.0.pc ==="
+          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q wpewebkit-1.0.pc \
+            && echo "OK: wpewebkit-1.0.pc present" \
+            || { echo "ERROR: wpewebkit-1.0.pc missing from package!"; exit 1; }
+          echo "=== checking for libWPEWebKit-1.0.so ==="
+          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "libWPEWebKit-1.0\.so$" \
+            && echo "OK: libWPEWebKit-1.0.so present" \
+            || { echo "ERROR: libWPEWebKit-1.0.so symlink missing from package!"; exit 1; }
 
       - name: Upload packages as artifacts
         uses: actions/upload-artifact@v4
