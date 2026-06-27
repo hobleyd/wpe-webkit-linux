@@ -316,6 +316,11 @@ jobs:
           find wpewebkit-src/Source/JavaScriptCore/offlineasm -name "*.rb" \
             -exec sed -i 's/File\.exists?/File.exist?/g' {} +
 
+          # GCC 13 requires explicit <cstdint> for uint64_t/uint32_t; older
+          # compilers pulled it in transitively via other system headers.
+          sed -i '/#include <vector>/a #include <cstdint>' \
+            wpewebkit-src/Source/ThirdParty/ANGLE/include/GLSLANG/ShaderVars.h
+
           # SerializableErrorType has no write() overload; GCC 13 refuses the
           # implicit enum→uint8_t conversion that older compilers accepted.
           # Use Python to avoid shell-escaping issues with < > in static_cast.
