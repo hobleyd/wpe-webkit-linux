@@ -370,17 +370,6 @@ jobs:
         run: |
           DESTDIR=${{ github.workspace }}/staging ninja -C build install
 
-      - name: Debug staging layout
-        run: |
-          echo "=== .pc files ==="
-          find staging -name "*.pc" | sort
-          echo "=== WPEWebKit .so files ==="
-          find staging -name "*WPEWebKit*.so*" | sort
-          echo "=== include dirs ==="
-          find staging/usr/include -maxdepth 2 -type d 2>/dev/null | sort
-          echo "=== full staging tree (5 levels) ==="
-          find staging -maxdepth 5 | sort
-
       - name: Package libwpewebkit-1.0-3 (runtime)
         run: |
           PKG=libwpewebkit-1.0-3
@@ -388,8 +377,8 @@ jobs:
           DIR="pkg/${PKG}_${VERSION}_amd64"
           mkdir -p "${DIR}/DEBIAN" "${DIR}/usr/lib/x86_64-linux-gnu"
 
-          # Copy shared libraries (not headers/pkgconfig)
-          cp -a staging/usr/lib/x86_64-linux-gnu/libWPEWebKit-1.0*.so* \
+          # Copy shared libraries — 2.36.x installs as libWPEWebKit-1.1
+          cp -a staging/usr/lib/x86_64-linux-gnu/libWPEWebKit-1.1*.so* \
             "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || true
           # WebKit data files
           if [ -d staging/usr/share/wpe ]; then
@@ -442,20 +431,22 @@ jobs:
                    "${DIR}/usr/include" \
                    "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig"
 
-          # Headers
-          [ -d staging/usr/include/wpe-webkit-1.0 ] && \
-            cp -a staging/usr/include/wpe-webkit-1.0 "${DIR}/usr/include/"
-          [ -d staging/usr/include/wpe-webkit ] && \
-            cp -a staging/usr/include/wpe-webkit "${DIR}/usr/include/"
+          # Headers — 2.36.x installs under wpe-webkit-1.1/
+          [ -d staging/usr/include/wpe-webkit-1.1 ] && \
+            cp -a staging/usr/include/wpe-webkit-1.1 "${DIR}/usr/include/"
 
           # .so symlink (unversioned, for linking)
           find staging/usr/lib/x86_64-linux-gnu -maxdepth 1 \
-            -name "libWPEWebKit-1.0.so" | xargs -r -I{} cp -a {} \
+            -name "libWPEWebKit-1.1.so" | xargs -r -I{} cp -a {} \
             "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || true
 
-          # pkg-config — search entire staging/usr/lib in case LIBDIR varied
-          find staging/usr/lib -name "wpewebkit-1.0.pc" 2>/dev/null | head -1 | \
-            xargs -r -I{} cp {} "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/"
+          # pkg-config: 2.36.x installs wpe-webkit-1.1.pc; serve it as
+          # wpewebkit-1.0.pc because flutter_inappwebview_linux cmake checks
+          # for that filename. pkg-config uses the filename not the Name: field.
+          if [ -f staging/usr/lib/x86_64-linux-gnu/pkgconfig/wpe-webkit-1.1.pc ]; then
+            cp staging/usr/lib/x86_64-linux-gnu/pkgconfig/wpe-webkit-1.1.pc \
+              "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/wpewebkit-1.0.pc"
+          fi
 
           cat > "${DIR}/DEBIAN/control" <<EOF
           Package: ${PKG}
@@ -481,10 +472,10 @@ jobs:
           dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q wpewebkit-1.0.pc \
             && echo "OK: wpewebkit-1.0.pc present" \
             || { echo "ERROR: wpewebkit-1.0.pc missing from package!"; exit 1; }
-          echo "=== checking for libWPEWebKit-1.0.so ==="
-          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "libWPEWebKit-1.0\.so$" \
-            && echo "OK: libWPEWebKit-1.0.so present" \
-            || { echo "ERROR: libWPEWebKit-1.0.so symlink missing from package!"; exit 1; }
+          echo "=== checking for libWPEWebKit-1.1.so ==="
+          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "libWPEWebKit-1\.1\.so$" \
+            && echo "OK: libWPEWebKit-1.1.so present" \
+            || { echo "ERROR: libWPEWebKit-1.1.so symlink missing from package!"; exit 1; }
 
       - name: Upload packages as artifacts
         uses: actions/upload-artifact@v4
