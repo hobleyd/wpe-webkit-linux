@@ -442,13 +442,24 @@ jobs:
             "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || \
             echo "WARNING: libWPEWebKit-1.1.so not found in staging"
 
-          # pkg-config: 2.36.x installs wpe-webkit-1.1.pc; serve it as
-          # wpewebkit-1.0.pc because flutter_inappwebview_linux cmake checks
-          # for that filename. pkg-config uses the filename not the Name: field.
-          if [ -f staging/usr/lib/x86_64-linux-gnu/pkgconfig/wpe-webkit-1.1.pc ]; then
-            cp staging/usr/lib/x86_64-linux-gnu/pkgconfig/wpe-webkit-1.1.pc \
-              "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/wpewebkit-1.0.pc"
-          fi
+          # Generate a minimal wpewebkit-1.0.pc shim.
+          # Copying wpe-webkit-1.1.pc directly is fragile because its Requires:
+          # section lists harfbuzz-gobject, icu-uc, etc. which may not have .pc
+          # files installed on the consumer's system, causing pkg_check_modules
+          # to fail even though the library itself is present.
+          # A minimal shim with only Cflags/Libs satisfies flutter's cmake check.
+          cat > "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/wpewebkit-1.0.pc" <<PCEOF
+prefix=/usr
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib/x86_64-linux-gnu
+includedir=\${prefix}/include
+
+Name: wpewebkit-1.0
+Description: WPE WebKit web content engine (compatibility shim for 1.1 API)
+Version: ${WPEWEBKIT_VERSION}
+Cflags: -I\${includedir}/wpe-webkit-1.1
+Libs: -L\${libdir} -lWPEWebKit-1.1
+PCEOF
 
           cat > "${DIR}/DEBIAN/control" <<EOF
           Package: ${PKG}
