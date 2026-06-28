@@ -435,10 +435,10 @@ jobs:
           [ -d staging/usr/include/wpe-webkit-1.1 ] && \
             cp -a staging/usr/include/wpe-webkit-1.1 "${DIR}/usr/include/"
 
-          # .so symlink (unversioned, for linking)
-          find staging/usr/lib/x86_64-linux-gnu -maxdepth 1 \
-            -name "libWPEWebKit-1.1.so" | xargs -r -I{} cp -a {} \
-            "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || true
+          # .so symlink (unversioned, for linking at compile time)
+          cp -a staging/usr/lib/x86_64-linux-gnu/libWPEWebKit-1.1.so \
+            "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || \
+            echo "WARNING: libWPEWebKit-1.1.so not found in staging"
 
           # pkg-config: 2.36.x installs wpe-webkit-1.1.pc; serve it as
           # wpewebkit-1.0.pc because flutter_inappwebview_linux cmake checks
@@ -473,7 +473,10 @@ jobs:
             && echo "OK: wpewebkit-1.0.pc present" \
             || { echo "ERROR: wpewebkit-1.0.pc missing from package!"; exit 1; }
           echo "=== checking for libWPEWebKit-1.1.so ==="
-          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "libWPEWebKit-1\.1\.so$" \
+          # Symlinks show as "libWPEWebKit-1.1.so -> target" in dpkg-deb output,
+          # so match the name followed by any non-dot character (space before ->)
+          # rather than anchoring to $, which would match the target instead.
+          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "libWPEWebKit-1\.1\.so[^.]" \
             && echo "OK: libWPEWebKit-1.1.so present" \
             || { echo "ERROR: libWPEWebKit-1.1.so symlink missing from package!"; exit 1; }
 
