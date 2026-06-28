@@ -377,8 +377,10 @@ jobs:
           DIR="pkg/${PKG}_${VERSION}_amd64"
           mkdir -p "${DIR}/DEBIAN" "${DIR}/usr/lib/x86_64-linux-gnu"
 
-          # Copy shared libraries — 2.36.x installs as libWPEWebKit-1.1
-          cp -a staging/usr/lib/x86_64-linux-gnu/libWPEWebKit-1.1*.so* \
+          # Copy versioned shared libraries only — 2.36.x installs as libWPEWebKit-1.1.
+          # The unversioned libWPEWebKit-1.1.so symlink belongs in the -dev package;
+          # the glob .so.* ensures we only pick up .so.0 and .so.0.x.y here.
+          cp -a staging/usr/lib/x86_64-linux-gnu/libWPEWebKit-1.1.so.* \
             "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || true
           # WebKit data files
           if [ -d staging/usr/share/wpe ]; then
