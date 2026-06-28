@@ -4,35 +4,35 @@ Hash: SHA512
 Origin: wpe-webkit-linux
 Label: wpe-webkit-linux
 Codename: noble
-Date: Fri, 26 Jun 2026 03:26:11 UTC
+Date: Sun, 28 Jun 2026 11:02:09 UTC
 Architectures: amd64
 Components: main
 Description: WPEWebKit 1.0 for Ubuntu 24.04 (Noble)
 MD5Sum:
- 2509b574b8ecd65bf5c7ccfe2220b461 4537 main/binary-amd64/Packages
- 4c2def0ef4df04e5b27d7a3907755196 1474 main/binary-amd64/Packages.gz
+ dc14ea73144ce47d4831e28d6e55d150 4544 main/binary-amd64/Packages
+ 3f4ca6702eedf1e45c96c75b95b7f804 1477 main/binary-amd64/Packages.gz
  42b5ef0102fc04686c0c0bc19c70a1ae 137 main/binary-amd64/Release
 SHA1:
- c31089a979ac3f80a7cf78e7cb06e2bfc5d74463 4537 main/binary-amd64/Packages
- 7455d7d9027c5ba681c9d94435104619cab3ecb0 1474 main/binary-amd64/Packages.gz
+ b8e949ef68d6c9c8a3f3c7ab02943bcb218fbe21 4544 main/binary-amd64/Packages
+ dd045f334625a2dbd8121aa408acb82f7d848a0b 1477 main/binary-amd64/Packages.gz
  53bcfb695bef6ad30cbed0406236837764bf4e8c 137 main/binary-amd64/Release
 SHA256:
- 9bf8439b697267ca57ae6141d0644cd6f216fa5f074c29c7ec27fa3e7362eb42 4537 main/binary-amd64/Packages
- 4fbea9f11a497e5e9224a375a40381f9b750787b35a74a150c454725b0bcc7dc 1474 main/binary-amd64/Packages.gz
+ 917d8cb5df8413a0ccc33cdacdd1e64bd2e9d019403528a81452cf37d0298870 4544 main/binary-amd64/Packages
+ 4ce6ce7e8c66f0eb52e5f300af7154c69a7fc2cea745c26ba1f143a12815a1c0 1477 main/binary-amd64/Packages.gz
  b6bb5a967f363fcf30aeddf3e9b51afe45e1d6dde77fa70d4f77bd17592e3a06 137 main/binary-amd64/Release
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEg/WUCCWx/y1IcaTXfG6PntHp6gYFAmo98VMACgkQfG6PntHp
-6gYRtA//UBlMsjnDIxrvQr1hn4PHSXwA7llv3RXr2aolGhpgNZF5JuNztr0uG2AO
-pVhtyXGAj1vvg7fpvEXX5KDJCq6jL+iypZh0ngI2KY2OssnbPBBQIdyZAu2Tg3YX
-sFEINEnHykb25FiE9qJJkYxAymo0Cfy1yQ+8/rc01R14F77KPsSKCHY+1VAYf0tk
-7xz7kmWj+jEcUfoR10RVS53ykaPG/sBJShJN5iFedLY8qh0WxMoWV6f5gZOCACpf
-4NwyrS8+auZBlCOnYO9QcaLjKVqniMXphk2qCvWOm4wFvcOKp2BqN+dsFckctDWk
-15TY9I5QXxpK9Z5XY/420ew8PoLWNdHLSGu2VZDdm4sB3mdtdPCa5UQFo1ZpBPqD
-5nVPUnNOx1rWmTH6/lOhj4376ZaE930+erz9yJ9/gL8CU8DVQobXnz8tIRr6tJUH
-t2x+6HqZWwH8iNX/iGWo0MpkDQaAMVqK1Nb3F+Lk7s7YqnvWh0jlx+6eVAroEHFR
-guQQnJMq8f3NTfnPFbczhC590QM6F0SqGaVVo0QpYoKbmmgTcD69yKUfdZSP0h2V
-ioQNicOE4s6APgLmub3KAij16cyE4zGdYWQMprlvezaD9sYkR6UeVhcB1SyeXmr/
-1XtGNAHpIaq6YQeESCUTEwaL9X4gDZb7K9XpmHFJa8/6Pb6BFiA=
-=GP86
+iQIzBAEBCgAdFiEEg/WUCCWx/y1IcaTXfG6PntHp6gYFAmpA/zEACgkQfG6PntHp
+6gZJpw//fL+8b5vY+1aZPDn77R0KFHsyzykfaoaPXSjJs5XW2aroAadTOZ7z/GeY
+Lgf3/7eWK2wNUUbb3y9BTCpqvHIgEIW21pRFyjWovuU9MsY56rbXKAavDFrnGR/y
+hduy2481PtMO7XutHP0s1T4UNTnP67z9oWw0qEOr0zFI9xLLvu5z5llJzRgta+0Z
+9BhibqXWIUx6EaFn1IeroPvDwPkm050vB/aC2K1Dz4KpJcb8YmrtvaibZMlpVOQJ
+wAOuoeEeGAGx6IOaZRvQ6dn9n1dETjbM3oRN0hBR7pXRuSl+WVnMYDsXpcSuD59Q
+AbNuZhoZqTkqYdPffLH7zUiuhanR4zIobCmQmEAxx0xF/iLZ7+PK8RIe85JqRAYm
+LNNmAk0AE/DFdqtF4oXSipDRwaggxkqctf/+o8obXQjQbsUW3HDR+gcjdvaXRnae
+9G3pYw/8fswhPhjKEuDLx2LiGWQeafyEq0h4RD3NSknW2Sl4gdM4PltaVvaqfSol
+J5FB8kg75VxCZtxabVcL2TRbJk8JxC2/4QjAK1G/N2M0qtnBBl15shVCv58DHT1+
+8gOlx+GUY90ANO0tducXGUP7ZbrToAGph05Fl7jK085kHP/kyRYAJfXewpK64rP3
+7hR1KMC9J1UQXclpu7yeRx+0UjD30JmCo8/1jb0flpCiVUb2uY4=
+=doXA
 -----END PGP SIGNATURE-----
