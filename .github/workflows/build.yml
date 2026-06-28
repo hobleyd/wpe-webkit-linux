@@ -448,18 +448,20 @@ jobs:
           # files installed on the consumer's system, causing pkg_check_modules
           # to fail even though the library itself is present.
           # A minimal shim with only Cflags/Libs satisfies flutter's cmake check.
-          cat > "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/wpewebkit-1.0.pc" <<PCEOF
-prefix=/usr
-exec_prefix=\${prefix}
-libdir=\${exec_prefix}/lib/x86_64-linux-gnu
-includedir=\${prefix}/include
-
-Name: wpewebkit-1.0
-Description: WPE WebKit web content engine (compatibility shim for 1.1 API)
-Version: ${WPEWEBKIT_VERSION}
-Cflags: -I\${includedir}/wpe-webkit-1.1
-Libs: -L\${libdir} -lWPEWebKit-1.1
-PCEOF
+          # Note: printf used instead of heredoc to keep content indented inside
+          # the YAML block scalar (heredoc content at col 0 breaks YAML parsing).
+          {
+            printf 'prefix=/usr\n'
+            printf 'exec_prefix=${prefix}\n'
+            printf 'libdir=${exec_prefix}/lib/x86_64-linux-gnu\n'
+            printf 'includedir=${prefix}/include\n'
+            printf '\n'
+            printf 'Name: wpewebkit-1.0\n'
+            printf 'Description: WPE WebKit web content engine (compatibility shim for 1.1 API)\n'
+            printf 'Version: %s\n' "${WPEWEBKIT_VERSION}"
+            printf 'Cflags: -I${includedir}/wpe-webkit-1.1\n'
+            printf 'Libs: -L${libdir} -lWPEWebKit-1.1\n'
+          } > "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/wpewebkit-1.0.pc"
 
           cat > "${DIR}/DEBIAN/control" <<EOF
           Package: ${PKG}
