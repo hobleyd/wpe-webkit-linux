@@ -6,10 +6,10 @@ Depends: libbrotli1
 Priority: optional
 Section: libs
 Filename: pool/main/libw/libwoff2-1/libwoff2-1_1.0.2-1~noble1_amd64.deb
-Size: 52732
-SHA256: 2ab601204758555034aaab5e95f1c63355867abf1705944a009572e335167207
-SHA1: ce1c908a6c2befee76e34d66d29357250534beac
-MD5sum: 6eda4ce3858248c2b07081781f707356
+Size: 52670
+SHA256: 69ed3f0e876823f3fee18d40bc44fbc2f66100dc2c43eee4cb4975ea4a032cdc
+SHA1: 42b60519a892735901ae441829a24d738c0625cf
+MD5sum: a766d654845ed18c37ad03477ee482d4
 Description: WebFont compression library (runtime)
  WOFF2 is a font compression format for the web.
 
@@ -22,9 +22,9 @@ Priority: optional
 Section: libdevel
 Filename: pool/main/libw/libwoff2-dev/libwoff2-dev_1.0.2-1~noble1_amd64.deb
 Size: 2286
-SHA256: ca299f7e8e5e5eff9b99ff37922e7d388e439b8806a9a8ca7d9eaaddafa91b0b
-SHA1: 47eb197b56590e3c05d2bd2c388771a376baa141
-MD5sum: 069c1b2b3c8f994740dacf96935d2491
+SHA256: 0b9ebea60de7cc3ed96ec2aa1f1e06ce687d3aabbb3dbe84da3509817b9c8f3f
+SHA1: d8dec990cc507a7a542a7dca974269896c3aa85f
+MD5sum: 21bbeb777de7318dbc7f184600377509
 Description: WebFont compression library (development)
  Development headers for libwoff2.
 
@@ -35,10 +35,10 @@ Maintainer: David Hobley <david@sharpblue.com.au>
 Priority: optional
 Section: libs
 Filename: pool/main/libw/libwpe-1.0-1/libwpe-1.0-1_1.16.0-1~noble1_amd64.deb
-Size: 18740
-SHA256: ebef53db34606257b41b45ccafb4333162113c974e222904ed16621494ce9eff
-SHA1: cefe7ef0395b238f75e63d78ec014937823d0846
-MD5sum: 0eda7a0648942b651cd0062c0e920876
+Size: 18736
+SHA256: 1492ef1ea3ac948729b87f6c768643a0a7e89c1bbdf8bc79e76f21b2f0b97e2a
+SHA1: 294434e03bf0b4f47405378c644ac0381af7714b
+MD5sum: 6a2adcf3933a9667e43644cc26beb991
 Description: WPE platform library (runtime)
  libwpe is a general-purpose library for the WPE WebKit port.
 
@@ -51,9 +51,9 @@ Priority: optional
 Section: libdevel
 Filename: pool/main/libw/libwpe-1.0-dev/libwpe-1.0-dev_1.16.0-1~noble1_amd64.deb
 Size: 37570
-SHA256: ddfe13d59cd4969679ac37a3ddcc06899afd00c5e79b85ca381e56da2a9b6e31
-SHA1: f5c4227d00bd6d2d078f716a7aaef638514c4c20
-MD5sum: ef4b209322145c04247acc7098feaeac
+SHA256: aaf4706650ce77bab09bad2368b0904140b85b5488bb5e461023c91be8ef4890
+SHA1: 6be3961779bb17492c57a16ae92484b36f6ee856
+MD5sum: 596a15c965c745be9a528ba507977306
 Description: WPE platform library (development)
  Development headers and pkg-config for libwpe-1.0.
 
@@ -65,10 +65,10 @@ Depends: libwpe-1.0-1
 Priority: optional
 Section: libs
 Filename: pool/main/libw/libwpebackend-fdo-1.0-1/libwpebackend-fdo-1.0-1_1.14.2-1~noble1_amd64.deb
-Size: 38010
-SHA256: 4d0603490ca7a4b383aba905e24e64bd224f6e404295abaa3eeda6781046aa0f
-SHA1: ad1f9b978fa537d8a1df7577d17c7dbbb50f7efa
-MD5sum: d999363a6750295d4c9f67db619e890a
+Size: 38026
+SHA256: 1ba10e40159f1796cea51714b4bc44362b1bb48585fd45fd851413d03fd7330e
+SHA1: c4af972460d327d5ab58f27c5f63dd88f1d446ff
+MD5sum: 8cb31e22c5cfffafeb5206c06298b400
 Description: WPE FDO backend (runtime)
  FDO backend for the WPE WebKit web content engine.
 
@@ -80,10 +80,10 @@ Depends: libwpebackend-fdo-1.0-1 (= 1.14.2-1~noble1)
 Priority: optional
 Section: libdevel
 Filename: pool/main/libw/libwpebackend-fdo-1.0-dev/libwpebackend-fdo-1.0-dev_1.14.2-1~noble1_amd64.deb
-Size: 5190
-SHA256: 335821368eb67bb07200aa3eb87a4b2e496e0f977e91f4305cbda3fd6175e427
-SHA1: ff2ad155385fe6169ba395dc6c07c1a5f8972726
-MD5sum: 820b3188872ed5188010d698e42224ec
+Size: 5194
+SHA256: 01b85e24feafea3bf68d82183dbeaeabadbeb38478c29c9edacaa4dccba3c562
+SHA1: caa00da859be4bb09119e590d65c5ac3e607028b
+MD5sum: 672496822368cc86e82b0bab7363ee8a
 Description: WPE FDO backend (development)
  Development headers and pkg-config for libwpebackend-fdo-1.0.
 
@@ -95,10 +95,10 @@ Depends: libwpe-1.0-1, libwpebackend-fdo-1.0-1, libwoff2-1
 Priority: optional
 Section: libs
 Filename: pool/main/libw/libwpewebkit-1.0-3/libwpewebkit-1.0-3_2.36.8-1~noble1_amd64.deb
-Size: 27688728
-SHA256: 9fe5bea947583f1971ed7f3cf0d432bea5166996f89c54acfa9cbce41d63974f
-SHA1: e8e4fef60b2e2a96bf3ca0b05c79d2ce896d8c4a
-MD5sum: ed3a243f420149531745e2dff165e0f2
+Size: 27680748
+SHA256: a7a7fc4f76559c4cf84cf58f34f85e1438519222add67a5857cb2120ca81c2b7
+SHA1: 4203c8782f91da43b561b9ee613f59c0b94c9252
+MD5sum: 30e1c67c462c0e6cbc89d1afc4216861
 Description: WPE WebKit web content engine for embedded devices (runtime)
  WPEWebKit is the WebKit port for WPE (Web Platform for Embedded).
  This package contains the runtime shared libraries.
@@ -111,10 +111,10 @@ Depends: libwpewebkit-1.0-3 (= 2.36.8-1~noble1)
 Priority: optional
 Section: libdevel
 Filename: pool/main/libw/libwpewebkit-1.0-dev/libwpewebkit-1.0-dev_2.36.8-1~noble1_amd64.deb
-Size: 37438
-SHA256: ef421b7c73d434271c6e7dbc69848e424f6c640c25f9156f6ce06688328056d6
-SHA1: 8eeadddf46bcf9bf281512b9916604a942293581
-MD5sum: 25dece8438c0cdd56ad09734eb554db9
+Size: 37462
+SHA256: 9db4d342b270f498a8b56d42ed02db241e374551f57dbb0a12dcce876193f35d
+SHA1: 4d3d1d49cf30e1847325c210bd56748820cfe02b
+MD5sum: f3ed34245d124a35dd54eac518159c99
 Description: WPEWebKit web content engine for embedded devices (development)
  Development headers and pkg-config file for libwpewebkit-1.0.
 
