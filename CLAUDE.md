@@ -23,13 +23,13 @@ Overriding to `=2` keeps all symbols within glibc 2.39.
 
 ## WPEWebKit version
 
-Target: **2.42.x** (currently 2.42.5).
-- WPEWebKit 2.42.x installs the **2.0 API**: `libWPEWebKit-2.0.so`, headers under
-  `wpe-webkit-2.0/`, and `wpe-webkit-2.0.pc` (empirically confirmed from staging layout).
-- 2.36.x used the **1.1 API** (`wpe-webkit-1.1.pc`, `libWPEWebKit-1.1.so`).
-- `flutter_inappwebview_linux 0.1.0-beta.1` uses `WebKitNetworkSession`,
-  `WebKitScriptMessageReply` and other types that only exist in the 2.0 API (2.40+).
-  Do **not** go back to 2.36.x.
+Target: **2.46.x** (currently 2.46.5).
+- WPEWebKit 2.46.x installs the **2.0 API**: `libWPEWebKit-2.0.so`, headers under
+  `wpe-webkit-2.0/`, and `wpe-webkit-2.0.pc`.
+- Do **not** use 2.42.x or earlier — `flutter_inappwebview_linux 0.1.0-beta.1` uses
+  `webkit_web_view_get_theme_color` and `webkit_settings_set_enable_2d_canvas_acceleration`
+  which were added in 2.46, plus `WebKitNetworkSession` / `WebKitScriptMessageReply`
+  which are 2.40+ only.
 
 ## pkg-config files shipped
 

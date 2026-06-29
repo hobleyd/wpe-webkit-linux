@@ -21,9 +21,9 @@ on:
   workflow_dispatch:
     inputs:
       wpewebkit_version:
-        description: 'WPEWebKit version (2.42.x+ required — uses wpe-webkit-2.0 ABI)'
+        description: 'WPEWebKit version (2.46.x+ required — webkit_web_view_get_theme_color and webkit_settings_set_enable_2d_canvas_acceleration added in 2.46)'
         required: true
-        default: '2.42.5'
+        default: '2.46.5'
       libwpe_version:
         description: 'libwpe version'
         required: true
@@ -41,7 +41,7 @@ permissions:
   pages: write
 
 env:
-  WPEWEBKIT_VERSION: ${{ github.event.inputs.wpewebkit_version || '2.42.5' }}
+  WPEWEBKIT_VERSION: ${{ github.event.inputs.wpewebkit_version || '2.46.5' }}
   LIBWPE_VERSION: ${{ github.event.inputs.libwpe_version || '1.16.0' }}
   WPEBACKEND_FDO_VERSION: ${{ github.event.inputs.wpebackend_fdo_version || '1.14.2' }}
   DISTRO: noble
