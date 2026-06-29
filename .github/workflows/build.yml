@@ -442,26 +442,32 @@ jobs:
             "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || \
             echo "WARNING: libWPEWebKit-1.1.so not found in staging"
 
-          # Generate a minimal wpewebkit-1.0.pc shim.
-          # Copying wpe-webkit-1.1.pc directly is fragile because its Requires:
-          # section lists harfbuzz-gobject, icu-uc, etc. which may not have .pc
-          # files installed on the consumer's system, causing pkg_check_modules
-          # to fail even though the library itself is present.
-          # A minimal shim with only Cflags/Libs satisfies flutter's cmake check.
-          # Note: printf used instead of heredoc to keep content indented inside
-          # the YAML block scalar (heredoc content at col 0 breaks YAML parsing).
-          {
-            printf 'prefix=/usr\n'
-            printf 'exec_prefix=${prefix}\n'
-            printf 'libdir=${exec_prefix}/lib/x86_64-linux-gnu\n'
-            printf 'includedir=${prefix}/include\n'
-            printf '\n'
-            printf 'Name: wpewebkit-1.0\n'
-            printf 'Description: WPE WebKit web content engine (compatibility shim for 1.1 API)\n'
-            printf 'Version: %s\n' "${WPEWEBKIT_VERSION}"
-            printf 'Cflags: -I${includedir}/wpe-webkit-1.1\n'
-            printf 'Libs: -L${libdir} -lWPEWebKit-1.1\n'
-          } > "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/wpewebkit-1.0.pc"
+          # Generate minimal pkg-config shims.
+          # flutter_inappwebview_linux's cmake tries (in order):
+          #   wpe-webkit-2.0, wpe-webkit-1.1, wpe-webkit-1.0
+          # WPEWebKit 2.36.x is the 1.1 API, so we ship wpe-webkit-1.1.pc.
+          # We also ship wpewebkit-1.0.pc for any older consumers.
+          # Minimal shims (no Requires:) avoid transitive dep failures when
+          # harfbuzz-gobject, icu-uc etc. don't have .pc files on the consumer.
+          # Note: printf used instead of heredoc — heredoc content at col 0
+          # breaks YAML block scalar parsing.
+          _gen_pc() {
+            local name="$1"
+            {
+              printf 'prefix=/usr\n'
+              printf 'exec_prefix=${prefix}\n'
+              printf 'libdir=${exec_prefix}/lib/x86_64-linux-gnu\n'
+              printf 'includedir=${prefix}/include\n'
+              printf '\n'
+              printf 'Name: %s\n' "$name"
+              printf 'Description: WPE WebKit web content engine (WPEWebKit 2.36.x / 1.1 API)\n'
+              printf 'Version: %s\n' "${WPEWEBKIT_VERSION}"
+              printf 'Cflags: -I${includedir}/wpe-webkit-1.1\n'
+              printf 'Libs: -L${libdir} -lWPEWebKit-1.1\n'
+            } > "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/${name}.pc"
+          }
+          _gen_pc wpe-webkit-1.1
+          _gen_pc wpewebkit-1.0
 
           cat > "${DIR}/DEBIAN/control" <<EOF
           Package: ${PKG}
@@ -483,8 +489,12 @@ jobs:
           echo "=== libwpewebkit-1.0-dev contents ==="
           dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb
           echo ""
+          echo "=== checking for wpe-webkit-1.1.pc ==="
+          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "wpe-webkit-1.1.pc" \
+            && echo "OK: wpe-webkit-1.1.pc present" \
+            || { echo "ERROR: wpe-webkit-1.1.pc missing from package!"; exit 1; }
           echo "=== checking for wpewebkit-1.0.pc ==="
-          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q wpewebkit-1.0.pc \
+          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "wpewebkit-1.0.pc" \
             && echo "OK: wpewebkit-1.0.pc present" \
             || { echo "ERROR: wpewebkit-1.0.pc missing from package!"; exit 1; }
           echo "=== checking for libWPEWebKit-1.1.so ==="
