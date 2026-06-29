@@ -3,12 +3,10 @@ name: build-wpewebkit
 # Build libwpewebkit-1.0-dev on Ubuntu 24.04 (Noble) and publish to an APT
 # repository hosted on GitHub Pages at hobleyd.github.io/wpe-webkit-linux.
 #
-# WPEWebKit 2.36.x is the last stable release series that ships the
-# wpewebkit-1.0 pkg-config ABI (libWPEWebKit-1.0.so), which is what
-# flutter_inappwebview_linux 0.1.0-beta.1 requires.  WPEWebKit 2.38+
-# switched to the wpe-webkit-2.0 ABI (libWPEWebKit-2.0.so, wpe-webkit-2.0.pc),
-# which is incompatible with flutter_inappwebview_linux's cmake checks.
-# Building here against Ubuntu 24.04 gives us glibc 2.39 compatible binaries.
+# flutter_inappwebview_linux 0.1.0-beta.1 requires the WPEWebKit 2.0 API
+# (wpe-webkit-2.0.pc, libWPEWebKit-2.0.so), which is present in WPEWebKit
+# 2.42.x+.  Building here against Ubuntu 24.04 gives glibc 2.39 compatible
+# binaries (see FORTIFY_SOURCE note below).
 #
 # libwpe, libwpebackend-fdo, and libwoff2 are all built from source: Ubuntu 24.04
 # dropped all WPE packages, and libwoff2-dev is only in the universe component
@@ -23,9 +21,9 @@ on:
   workflow_dispatch:
     inputs:
       wpewebkit_version:
-        description: 'WPEWebKit version (must be 2.36.x — last series with wpewebkit-1.0 ABI; 2.38+ uses wpe-webkit-2.0)'
+        description: 'WPEWebKit version (2.42.x+ required — uses wpe-webkit-2.0 ABI)'
         required: true
-        default: '2.36.8'
+        default: '2.42.5'
       libwpe_version:
         description: 'libwpe version'
         required: true
@@ -43,7 +41,7 @@ permissions:
   pages: write
 
 env:
-  WPEWEBKIT_VERSION: ${{ github.event.inputs.wpewebkit_version || '2.36.8' }}
+  WPEWEBKIT_VERSION: ${{ github.event.inputs.wpewebkit_version || '2.42.5' }}
   LIBWPE_VERSION: ${{ github.event.inputs.libwpe_version || '1.16.0' }}
   WPEBACKEND_FDO_VERSION: ${{ github.event.inputs.wpebackend_fdo_version || '1.14.2' }}
   DISTRO: noble
@@ -286,7 +284,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build
-          key: wpewebkit-build-${{ env.WPEWEBKIT_VERSION }}-${{ runner.os }}-v4
+          key: wpewebkit-build-${{ env.WPEWEBKIT_VERSION }}-${{ runner.os }}-v5
 
       - name: Download WPEWebKit source
         run: |
@@ -377,10 +375,10 @@ jobs:
           DIR="pkg/${PKG}_${VERSION}_amd64"
           mkdir -p "${DIR}/DEBIAN" "${DIR}/usr/lib/x86_64-linux-gnu"
 
-          # Copy versioned shared libraries only — 2.36.x installs as libWPEWebKit-1.1.
-          # The unversioned libWPEWebKit-1.1.so symlink belongs in the -dev package;
-          # the glob .so.* ensures we only pick up .so.0 and .so.0.x.y here.
-          cp -a staging/usr/lib/x86_64-linux-gnu/libWPEWebKit-1.1.so.* \
+          # Copy versioned shared libraries only — 2.42.x installs as libWPEWebKit-2.0.
+          # The unversioned libWPEWebKit-2.0.so symlink belongs in the -dev package;
+          # the glob .so.* ensures we only pick up .so.1 and .so.1.x.y here.
+          cp -a staging/usr/lib/x86_64-linux-gnu/libWPEWebKit-2.0.so.* \
             "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || true
           # WebKit data files
           if [ -d staging/usr/share/wpe ]; then
@@ -433,42 +431,20 @@ jobs:
                    "${DIR}/usr/include" \
                    "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig"
 
-          # Headers — 2.36.x installs under wpe-webkit-1.1/
-          [ -d staging/usr/include/wpe-webkit-1.1 ] && \
-            cp -a staging/usr/include/wpe-webkit-1.1 "${DIR}/usr/include/"
+          # Headers — 2.42.x installs under wpe-webkit-2.0/
+          [ -d staging/usr/include/wpe-webkit-2.0 ] && \
+            cp -a staging/usr/include/wpe-webkit-2.0 "${DIR}/usr/include/"
 
           # .so symlink (unversioned, for linking at compile time)
-          cp -a staging/usr/lib/x86_64-linux-gnu/libWPEWebKit-1.1.so \
+          cp -a staging/usr/lib/x86_64-linux-gnu/libWPEWebKit-2.0.so \
             "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || \
-            echo "WARNING: libWPEWebKit-1.1.so not found in staging"
+            echo "WARNING: libWPEWebKit-2.0.so not found in staging"
 
-          # Generate minimal pkg-config shims.
-          # flutter_inappwebview_linux's cmake tries (in order):
-          #   wpe-webkit-2.0, wpe-webkit-1.1, wpe-webkit-1.0
-          # WPEWebKit 2.36.x is the 1.1 API, so we ship wpe-webkit-1.1.pc.
-          # We also ship wpewebkit-1.0.pc for any older consumers.
-          # Minimal shims (no Requires:) avoid transitive dep failures when
-          # harfbuzz-gobject, icu-uc etc. don't have .pc files on the consumer.
-          # Note: printf used instead of heredoc — heredoc content at col 0
-          # breaks YAML block scalar parsing.
-          _gen_pc() {
-            local name="$1"
-            {
-              printf 'prefix=/usr\n'
-              printf 'exec_prefix=${prefix}\n'
-              printf 'libdir=${exec_prefix}/lib/x86_64-linux-gnu\n'
-              printf 'includedir=${prefix}/include\n'
-              printf '\n'
-              printf 'Name: %s\n' "$name"
-              printf 'Description: WPE WebKit web content engine (WPEWebKit 2.36.x / 1.1 API)\n'
-              printf 'Version: %s\n' "${WPEWEBKIT_VERSION}"
-              printf 'Requires: libsoup-3.0 glib-2.0 gobject-2.0 gio-2.0\n'
-              printf 'Cflags: -I${includedir}/wpe-webkit-1.1\n'
-              printf 'Libs: -L${libdir} -lWPEWebKit-1.1\n'
-            } > "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/${name}.pc"
-          }
-          _gen_pc wpe-webkit-1.1
-          _gen_pc wpewebkit-1.0
+          # Use the real wpe-webkit-2.0.pc from the build — it has all the correct
+          # Requires: (libsoup-3.0, glib-2.0, etc.) so cmake IMPORTED_TARGET gets
+          # the right transitive Cflags for compiling against WPEWebKit headers.
+          find staging -name "wpe-webkit-2.0.pc" 2>/dev/null | head -1 | \
+            xargs -r -I{} cp {} "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/"
 
           cat > "${DIR}/DEBIAN/control" <<EOF
           Package: ${PKG}
@@ -490,21 +466,17 @@ jobs:
           echo "=== libwpewebkit-1.0-dev contents ==="
           dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb
           echo ""
-          echo "=== checking for wpe-webkit-1.1.pc ==="
-          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "wpe-webkit-1.1.pc" \
-            && echo "OK: wpe-webkit-1.1.pc present" \
-            || { echo "ERROR: wpe-webkit-1.1.pc missing from package!"; exit 1; }
-          echo "=== checking for wpewebkit-1.0.pc ==="
-          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "wpewebkit-1.0.pc" \
-            && echo "OK: wpewebkit-1.0.pc present" \
-            || { echo "ERROR: wpewebkit-1.0.pc missing from package!"; exit 1; }
-          echo "=== checking for libWPEWebKit-1.1.so ==="
-          # Symlinks show as "libWPEWebKit-1.1.so -> target" in dpkg-deb output,
+          echo "=== checking for wpe-webkit-2.0.pc ==="
+          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "wpe-webkit-2.0.pc" \
+            && echo "OK: wpe-webkit-2.0.pc present" \
+            || { echo "ERROR: wpe-webkit-2.0.pc missing from package!"; exit 1; }
+          echo "=== checking for libWPEWebKit-2.0.so ==="
+          # Symlinks show as "libWPEWebKit-2.0.so -> target" in dpkg-deb output,
           # so match the name followed by any non-dot character (space before ->)
           # rather than anchoring to $, which would match the target instead.
-          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "libWPEWebKit-1\.1\.so[^.]" \
-            && echo "OK: libWPEWebKit-1.1.so present" \
-            || { echo "ERROR: libWPEWebKit-1.1.so symlink missing from package!"; exit 1; }
+          dpkg-deb --contents pkg/libwpewebkit-1.0-dev_*.deb | grep -q "libWPEWebKit-2\.0\.so[^.]" \
+            && echo "OK: libWPEWebKit-2.0.so present" \
+            || { echo "ERROR: libWPEWebKit-2.0.so symlink missing from package!"; exit 1; }
 
       - name: Upload packages as artifacts
         uses: actions/upload-artifact@v4

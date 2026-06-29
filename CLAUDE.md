@@ -23,23 +23,22 @@ Overriding to `=2` keeps all symbols within glibc 2.39.
 
 ## WPEWebKit version
 
-Target: **2.36.x** (the latest 2.36.y patch release, currently 2.36.8).
-- WPEWebKit 2.36.x installs the **1.1 API**: `libWPEWebKit-1.1.so`, headers under
-  `wpe-webkit-1.1/`, and `wpe-webkit-1.1.pc` (empirically confirmed from staging layout).
-- **2.38+ switched to the 2.0 API** (`wpe-webkit-2.0.pc`, `libWPEWebKit-2.0.so`).
-  This was confirmed empirically: 2.42.5 installs `wpe-webkit-2.0.pc`.
-- Do not update past 2.36.x — we need the 1.x API for compatibility.
+Target: **2.42.x** (currently 2.42.5).
+- WPEWebKit 2.42.x installs the **2.0 API**: `libWPEWebKit-2.0.so`, headers under
+  `wpe-webkit-2.0/`, and `wpe-webkit-2.0.pc` (empirically confirmed from staging layout).
+- 2.36.x used the **1.1 API** (`wpe-webkit-1.1.pc`, `libWPEWebKit-1.1.so`).
+- `flutter_inappwebview_linux 0.1.0-beta.1` uses `WebKitNetworkSession`,
+  `WebKitScriptMessageReply` and other types that only exist in the 2.0 API (2.40+).
+  Do **not** go back to 2.36.x.
 
 ## pkg-config files shipped
 
 `flutter_inappwebview_linux 0.1.0-beta.1`'s cmake checks for these names **in order**:
 `wpe-webkit-2.0` → `wpe-webkit-1.1` → `wpe-webkit-1.0`
 
-We ship **minimal shims** (no `Requires:` to avoid transitive dep failures):
-- `wpe-webkit-1.1.pc` — primary; cmake finds this (WPEWebKit 2.36.x is the 1.1 API)
-- `wpewebkit-1.0.pc` — fallback for any older consumers
-
-Both point to `-lWPEWebKit-1.1` and headers under `wpe-webkit-1.1/`.
+We ship the **real `wpe-webkit-2.0.pc`** copied from the staging directory.
+This provides all the correct `Requires:` entries (libsoup-3.0, glib-2.0, etc.)
+so cmake `IMPORTED_TARGET` gets the right transitive Cflags.
 
 ## APT repository
 
@@ -88,7 +87,7 @@ gpg --armor --export-secret-keys wpe-webkit-linux@sharpblue.com.au
 | Package | Contains |
 |---------|----------|
 | `libwpewebkit-1.0-3` | Runtime `.so` libraries |
-| `libwpewebkit-1.0-dev` | Headers under `wpe-webkit-1.1/`, unversioned `.so` symlink, `wpe-webkit-1.1.pc` + `wpewebkit-1.0.pc` shims |
+| `libwpewebkit-1.0-dev` | Headers under `wpe-webkit-2.0/`, unversioned `.so` symlink, real `wpe-webkit-2.0.pc` |
 
 ## Consuming in Nightmail CI
 
