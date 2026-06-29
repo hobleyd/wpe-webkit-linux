@@ -1,19 +1,19 @@
 Origin: wpe-webkit-linux
 Label: wpe-webkit-linux
 Codename: noble
-Date: Mon, 29 Jun 2026 07:13:58 UTC
+Date: Mon, 29 Jun 2026 11:13:37 UTC
 Architectures: amd64
 Components: main
 Description: WPEWebKit 1.0 for Ubuntu 24.04 (Noble)
 MD5Sum:
- 20c17fc78dae578387614472fb179860 4545 main/binary-amd64/Packages
- 0d18e0f7c14bf1caea214eeee243f923 1476 main/binary-amd64/Packages.gz
+ b300c2382039b7c43b19ee72bbc7ea09 4545 main/binary-amd64/Packages
+ 10e0c5a678536a5cea5150c748a01211 1483 main/binary-amd64/Packages.gz
  42b5ef0102fc04686c0c0bc19c70a1ae 137 main/binary-amd64/Release
 SHA1:
- f497b84093383e6a887b8e01609a8660c5118fef 4545 main/binary-amd64/Packages
- e0fac6c93e9ff3f703d97c23ef9ef2a55e0762bd 1476 main/binary-amd64/Packages.gz
+ b817b3fc81e5b1e32511b03a1067145383029030 4545 main/binary-amd64/Packages
+ 755b955fdac7e629e270a5b05fddd99ebafae82f 1483 main/binary-amd64/Packages.gz
  53bcfb695bef6ad30cbed0406236837764bf4e8c 137 main/binary-amd64/Release
 SHA256:
- ac97de52890437f958a9fab48b235d8501a68d5e00726224eb6fb8d92df09f78 4545 main/binary-amd64/Packages
- f006c44a1e0b64872a9a673efb6687812005b8cc2d1e641c1e6572d1b4f9b182 1476 main/binary-amd64/Packages.gz
+ 67ca51a2fec609b7924b88833624ebe303b95c824a4d14e60449337bb6d5ecc1 4545 main/binary-amd64/Packages
+ 521e94f247d78de0d618da2cd439f52664ad0a19aeac9977636f870c79d45079 1483 main/binary-amd64/Packages.gz
  b6bb5a967f363fcf30aeddf3e9b51afe45e1d6dde77fa70d4f77bd17592e3a06 137 main/binary-amd64/Release
