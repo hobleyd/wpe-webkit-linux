@@ -70,6 +70,7 @@ jobs:
             libegl-dev libwayland-dev wayland-protocols libxkbcommon-dev \
             libunwind-dev libseccomp-dev \
             libenchant-2-dev libhyphen-dev liblcms2-dev \
+            libtasn1-6-dev \
             libmanette-0.2-dev \
             dpkg-dev debhelper fakeroot
 
