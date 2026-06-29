@@ -260,8 +260,8 @@ jobs:
           mkdir -p "${DIR}/DEBIAN" \
                    "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig" \
                    "${DIR}/usr/include"
-          [ -d staging-wpebackend-fdo/usr/include/wpe ] && \
-            cp -a staging-wpebackend-fdo/usr/include/wpe "${DIR}/usr/include/"
+          [ -d staging-wpebackend-fdo/usr/include/wpe-fdo-1.0 ] && \
+            cp -a staging-wpebackend-fdo/usr/include/wpe-fdo-1.0 "${DIR}/usr/include/"
           cp -a staging-wpebackend-fdo/usr/lib/x86_64-linux-gnu/libWPEBackend-fdo-1.0.so \
             "${DIR}/usr/lib/x86_64-linux-gnu/" 2>/dev/null || true
           find staging-wpebackend-fdo -name "wpebackend-fdo-1.0.pc" 2>/dev/null | head -1 | \
