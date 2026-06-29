@@ -462,6 +462,7 @@ jobs:
               printf 'Name: %s\n' "$name"
               printf 'Description: WPE WebKit web content engine (WPEWebKit 2.36.x / 1.1 API)\n'
               printf 'Version: %s\n' "${WPEWEBKIT_VERSION}"
+              printf 'Requires: libsoup-3.0 glib-2.0 gobject-2.0 gio-2.0\n'
               printf 'Cflags: -I${includedir}/wpe-webkit-1.1\n'
               printf 'Libs: -L${libdir} -lWPEWebKit-1.1\n'
             } > "${DIR}/usr/lib/x86_64-linux-gnu/pkgconfig/${name}.pc"
