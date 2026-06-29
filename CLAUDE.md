@@ -8,7 +8,7 @@ GitHub Pages at `hobleyd.github.io/wpe-webkit-linux` (custom domain
 `wpe-webkit-linux.sharpblue.com.au` pending DNS fix — CNAME target needs trailing dot).
 
 This exists because:
-- `flutter_inappwebview_linux 0.1.0-beta.1` requires `wpewebkit-1.0` (via pkg-config)
+- `flutter_inappwebview_linux 0.1.0-beta.1` requires WPE WebKit (via pkg-config)
 - Ubuntu 24.04 dropped WPE WebKit from its repos
 - Debian Sid's `libwpewebkit-2.0-dev` uses a different ABI **and** is compiled
   against glibc 2.42, incompatible with Ubuntu 24.04's glibc 2.39
@@ -24,12 +24,22 @@ Overriding to `=2` keeps all symbols within glibc 2.39.
 ## WPEWebKit version
 
 Target: **2.36.x** (the latest 2.36.y patch release, currently 2.36.8).
-- The `wpewebkit-1.0` pkg-config ABI (`libWPEWebKit-1.0.so`) is present in ≤ 2.36.
-- **2.38+ switched to `wpe-webkit-2.0`** (different pkg-config name, different SONAME:
-  `libWPEWebKit-2.0.so`). This was confirmed empirically: 2.42.5 installs
-  `wpe-webkit-2.0.pc`, not `wpewebkit-1.0.pc`.
-- Do not update past 2.36.x — `flutter_inappwebview_linux` cmake checks for
-  `wpewebkit-1.0` specifically and will fail if it only finds `wpe-webkit-2.0`.
+- WPEWebKit 2.36.x installs the **1.1 API**: `libWPEWebKit-1.1.so`, headers under
+  `wpe-webkit-1.1/`, and `wpe-webkit-1.1.pc` (empirically confirmed from staging layout).
+- **2.38+ switched to the 2.0 API** (`wpe-webkit-2.0.pc`, `libWPEWebKit-2.0.so`).
+  This was confirmed empirically: 2.42.5 installs `wpe-webkit-2.0.pc`.
+- Do not update past 2.36.x — we need the 1.x API for compatibility.
+
+## pkg-config files shipped
+
+`flutter_inappwebview_linux 0.1.0-beta.1`'s cmake checks for these names **in order**:
+`wpe-webkit-2.0` → `wpe-webkit-1.1` → `wpe-webkit-1.0`
+
+We ship **minimal shims** (no `Requires:` to avoid transitive dep failures):
+- `wpe-webkit-1.1.pc` — primary; cmake finds this (WPEWebKit 2.36.x is the 1.1 API)
+- `wpewebkit-1.0.pc` — fallback for any older consumers
+
+Both point to `-lWPEWebKit-1.1` and headers under `wpe-webkit-1.1/`.
 
 ## APT repository
 
@@ -78,7 +88,7 @@ gpg --armor --export-secret-keys wpe-webkit-linux@sharpblue.com.au
 | Package | Contains |
 |---------|----------|
 | `libwpewebkit-1.0-3` | Runtime `.so` libraries |
-| `libwpewebkit-1.0-dev` | Headers, unversioned `.so` symlink, pkg-config file |
+| `libwpewebkit-1.0-dev` | Headers under `wpe-webkit-1.1/`, unversioned `.so` symlink, `wpe-webkit-1.1.pc` + `wpewebkit-1.0.pc` shims |
 
 ## Consuming in Nightmail CI
 
